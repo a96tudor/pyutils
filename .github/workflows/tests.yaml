@@ -1,4 +1,4 @@
-name: pyutils CI
+name: pyutils tests
 
 on:
   push:
@@ -46,28 +46,28 @@ jobs:
         - name: Run tests
           run: tox -e py310
 
-    lint:
-      runs-on: ubuntu-latest
-      steps:
-          - uses: actions/checkout@v2
-          - name: Set up Python 3.8
-            uses: actions/setup-python@v2
-            with:
-                python-version: '3.8'
-          - name: Install test dependencies
-            run: pip install tox
-          - name: Run linter
-            run: tox -e lint
-
-    type:
+    test-py311:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v2
-        - name: Set up Python 3.8
+        - name: Set up Python 3.11
           uses: actions/setup-python@v2
           with:
-            python-version: '3.8'
+            python-version: '3.11'
         - name: Install test dependencies
           run: pip install tox
-        - name: Run type checks
-          run: tox -e type
+        - name: Run tests
+          run: tox -e py311
+
+    test-py312:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - name: Set up Python 3.12
+          uses: actions/setup-python@v2
+          with:
+            python-version: '3.12'
+        - name: Install test dependencies
+          run: pip install tox
+        - name: Run tests
+          run: tox -e py312
