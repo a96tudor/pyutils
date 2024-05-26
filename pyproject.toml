@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "pyutils_tavram"
+name = "pyutils-tavram"
 version = "0.0.1"
 authors = [
   { name="Tudor Avram", email="a96tudor@gmail.com" },
