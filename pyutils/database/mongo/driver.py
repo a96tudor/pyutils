@@ -1,8 +1,10 @@
+from typing import Optional
+
 from pyutils.database.mongo.client_handler import MongoClientHandler
 
 
 class MongoDriver:
-    """Driver intended to be used by `newsfeel-service`."""
+    """Base MongoDriver. To be extended with Business-driven logic."""
 
     def __init__(
         self,
@@ -26,7 +28,7 @@ class MongoDriver:
         self._database_name = database_name
         self._collection_name = collection_name
 
-        self.client_handler: MongoClientHandler
+        self.client_handler: Optional[MongoClientHandler] = None
         self.connect_to(connection_string, database_name, collection_name)
 
     def connect_to(

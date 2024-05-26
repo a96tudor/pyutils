@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 import certifi
-import pymongo
+from pymongo import MongoClient
 from pymongo.collection import Collection
 from pymongo.cursor import Cursor
 from pymongo.database import Database
@@ -21,15 +21,15 @@ class MongoClientHandler:
         connection_string: str
             The connection string used to connect to the mongodb cluser.
         database_name: str
-            Name of the dabase to be used.
+            Name of the database to be used.
         collection_name: str
             Name of the collection to be used.
 
         """
-        self.client: pymongo.MongoClient = None
+        self.client: MongoClient
 
-        self.database_handler: Database = None
-        self.collection_handler: Collection = None
+        self.database_handler: Database
+        self.collection_handler: Collection
 
         self.database_name = database_name
         self.collection_name = collection_name
@@ -46,12 +46,12 @@ class MongoClientHandler:
         connection_string: str
             The connection string used to connect to the mongodb cluser.
         database_name: str
-            Name of the dabase to be used.
+            Name of the database to be used.
         collection_name: str
             Name of the collection to be used.
 
         """
-        self.client = pymongo.MongoClient(connection_string, tlsCAFile=certifi.where())
+        self.client = MongoClient(connection_string, tlsCAFile=certifi.where())
 
         self.database_handler = self.client[database_name]
         self.collection_handler = self.database_handler[collection_name]
@@ -353,6 +353,10 @@ class MongoClientHandler:
 
     def drop_collection(self):
         """Drop the collection with all the documents inside it."""
+        if self.collection_dropped:
+            # It is already dropped, nothing left to do
+            return
+
         self.collection_handler.drop()
         self.collection_dropped = True
 
