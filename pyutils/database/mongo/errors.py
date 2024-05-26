@@ -1,9 +1,10 @@
 import json
 
+
 class MongoDbError(Exception):
     """Base class for a mongodb-related error."""
 
-    def __init__(self, database_name, collection_name, message):
+    def __init__(self, database_name: str, collection_name: str, message: str):
         """Base class for a mongodb-related error.
 
         Parameters
@@ -27,7 +28,7 @@ class MongoDbError(Exception):
 class MongoDbInsertOneError(MongoDbError):
     """Error occurring when the `insert_one` operation failed."""
 
-    def __init__(self, database_name, collection_name):
+    def __init__(self, database_name: str, collection_name: str):
         """Raise when the `insert_one` operation failed.
 
         Parameters
@@ -49,7 +50,7 @@ class MongoDbInsertOneError(MongoDbError):
 class MongoDbInsertBatchError(MongoDbError):
     """Error occurring when the `insert_batch` operation failed."""
 
-    def __init__(self, database_name, collection_name, number_of_items):
+    def __init__(self, database_name: str, collection_name: str, number_of_items: str):
         """Raise when the `insert_batch` operation failed.
 
         Parameters
@@ -75,7 +76,9 @@ class MongoDbInsertBatchError(MongoDbError):
 class MongoDbUpdateError(MongoDbError):
     """Error occurring when the `update` operation failed."""
 
-    def __init__(self, database_name, collection_name, query, new_values):
+    def __init__(
+        self, database_name: str, collection_name: str, query: str, new_values: str
+    ):
         """Raise when the `update` operation failed.
 
         Parameters
@@ -105,7 +108,7 @@ class MongoDbUpdateError(MongoDbError):
 class MongoDbDeleteError(MongoDbError):
     """Error occurring when the `delete` operation failed."""
 
-    def __init__(self, database_name, collection_name, query):
+    def __init__(self, database_name: str, collection_name: str, query: str):
         """Raise when the `delete` operation failed.
 
         Parameters
@@ -129,7 +132,7 @@ class MongoDbDeleteError(MongoDbError):
 class MongoDbCollectionDroppedError(MongoDbError):
     """Error occurring when dropping a collection."""
 
-    def __init__(self, database_name, collection_name):
+    def __init__(self, database_name: str, collection_name: str):
         """Raise when dropping a collection fails.
 
         Parameters

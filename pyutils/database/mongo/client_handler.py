@@ -1,4 +1,7 @@
+from typing import Optional
+
 import pymongo
+from pymongo.cursor import Cursor
 import certifi
 
 import pyutils.database.mongo.errors as err
@@ -6,7 +9,9 @@ import pyutils.database.mongo.errors as err
 
 class MongoClientHandler:
 
-    def __init__(self, connection_string, database_name, collection_name):
+    def __init__(
+        self, connection_string: str, database_name: str, collection_name: str
+    ):
         """Connect to a specific collection in the mongodb cluster.
 
         Parameters
@@ -31,7 +36,9 @@ class MongoClientHandler:
         
         self.connect(connection_string, database_name, collection_name)
 
-    def connect(self, connection_string, database_name, collection_name):
+    def connect(
+        self, connection_string: str, database_name: str, collection_name: str
+    ):
         """Connect to a specific collection in the mongodb cluster.
 
         Parameters
@@ -56,7 +63,7 @@ class MongoClientHandler:
 
         self.collection_dropped = False
 
-    def insert_one(self, data):
+    def insert_one(self, data: dict) -> str:
         """Insert one data point in the database.
 
         Parameters
@@ -83,7 +90,7 @@ class MongoClientHandler:
 
         return str(insert_result.inserted_id)
 
-    def insert_batch(self, data):
+    def insert_batch(self, data: [dict]) -> [str]:
         """Insert a set of data points in the database.
 
         Parameters
@@ -110,7 +117,12 @@ class MongoClientHandler:
 
         return [str(inserted_id) for inserted_id in insert_result.inserted_ids]
 
-    def find_many(self, query=None, limit=0, projection=None):
+    def find_many(
+        self,
+        query: Optional[dict] = None,
+        limit: Optional[int] = 0,
+        projection: Optional[list] = None,
+    ) -> Cursor:
         """Find all datapoints matching a given query.
 
         Parameters
@@ -144,7 +156,11 @@ class MongoClientHandler:
             projection=projection,
         )
 
-    def find_one(self, query=None, projection=None):
+    def find_one(
+        self,
+        query: Optional[dict] = None,
+        projection: Optional[list] = None,
+    ) -> Cursor:
         """Find one element matching `query`.
 
         Parameters
@@ -175,7 +191,7 @@ class MongoClientHandler:
             projection=projection,
         )
 
-    def update_one(self, query, new_values):
+    def update_one(self, query: dict, new_values: dict) -> int:
         """Update one document matching `query` in the collection.
 
         Example:
@@ -221,7 +237,7 @@ class MongoClientHandler:
 
         return update_result.modified_count
 
-    def update_all(self, query, new_values):
+    def update_all(self, query: dict, new_values: dict) -> int:
         """Update all documents matching `query` in the collection.
 
         Example:
@@ -266,7 +282,7 @@ class MongoClientHandler:
 
         return update_result.modified_count
 
-    def delete_one(self, query):
+    def delete_one(self, query: dict) -> int:
         """Delete one document in the collection, matching `query`.
 
         Parameters
@@ -298,7 +314,7 @@ class MongoClientHandler:
 
         return deletion_result.deleted_count
 
-    def delete_all(self, query):
+    def delete_all(self, query: dict) -> int:
         """Delete all documents in the collection matching `query`.
 
         Parameters

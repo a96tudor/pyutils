@@ -1,9 +1,12 @@
 from pyutils.database.mongo.client_handler import MongoClientHandler
 
+
 class MongoDriverNewsfeelService:
     """Driver intended to be used by `newsfeel-service`."""
 
-    def __init__(self, connection_string, database_name, collection_name):
+    def __init__(
+        self, connection_string: str, database_name: str, collection_name: str,
+    ):
         """Connect to a specific collection in the mongodb cluster.
 
         Parameters
@@ -23,7 +26,9 @@ class MongoDriverNewsfeelService:
         self.client_handler = None
         self.connect_to(connection_string, database_name, collection_name)
 
-    def connect_to(self, connection_string, database_name, collection_name):
+    def connect_to(
+        self, connection_string: str, database_name: str, collection_name: str,
+    ):
         """Connect to a MongoDB collection.
 
         Parameters
