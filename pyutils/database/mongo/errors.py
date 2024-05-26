@@ -18,8 +18,8 @@ class MongoDbError(Exception):
 
         """
         super().__init__(
-            f'{message} when connected to database {database_name}, '
-            f'collection {collection_name}'
+            f"{message} when connected to database {database_name}, "
+            f"collection {collection_name}"
         )
         self.database_name = database_name
         self.collection_name = collection_name
@@ -42,15 +42,18 @@ class MongoDbInsertOneError(MongoDbError):
 
         """
         super().__init__(
-            database_name, collection_name,
-            'Failed to insert one item in the collection'
+            database_name,
+            collection_name,
+            "Failed to insert one item in the collection",
         )
 
 
 class MongoDbInsertBatchError(MongoDbError):
     """Error occurring when the `insert_batch` operation failed."""
 
-    def __init__(self, database_name: str, collection_name: str, number_of_items: str):
+    def __init__(
+        self, database_name: str, collection_name: str, number_of_items: int,
+    ):
         """Raise when the `insert_batch` operation failed.
 
         Parameters
@@ -66,8 +69,9 @@ class MongoDbInsertBatchError(MongoDbError):
 
         """
         super().__init__(
-            database_name, collection_name,
-            f'Failed to insert {number_of_items} data points in the collection'
+            database_name,
+            collection_name,
+            f"Failed to insert {number_of_items} data points in the collection",
         )
 
         self.number_of_items = number_of_items
@@ -77,7 +81,11 @@ class MongoDbUpdateError(MongoDbError):
     """Error occurring when the `update` operation failed."""
 
     def __init__(
-        self, database_name: str, collection_name: str, query: str, new_values: str
+        self,
+        database_name: str,
+        collection_name: str,
+        query: dict,
+        new_values: dict,
     ):
         """Raise when the `update` operation failed.
 
@@ -96,9 +104,10 @@ class MongoDbUpdateError(MongoDbError):
 
         """
         super().__init__(
-            database_name, collection_name,
-            f'Could not update documents matching {json.dumps(query)} with '
-            f'{json.dumps(new_values)}'
+            database_name,
+            collection_name,
+            f"Could not update documents matching {json.dumps(query)} with "
+            f"{json.dumps(new_values)}",
         )
 
         self.query = query
@@ -108,7 +117,7 @@ class MongoDbUpdateError(MongoDbError):
 class MongoDbDeleteError(MongoDbError):
     """Error occurring when the `delete` operation failed."""
 
-    def __init__(self, database_name: str, collection_name: str, query: str):
+    def __init__(self, database_name: str, collection_name: str, query: dict):
         """Raise when the `delete` operation failed.
 
         Parameters
@@ -122,8 +131,9 @@ class MongoDbDeleteError(MongoDbError):
 
         """
         super().__init__(
-            database_name, collection_name,
-            f'Failed to delete documents matching {json.dumps(query)}'
+            database_name,
+            collection_name,
+            f"Failed to delete documents matching {json.dumps(query)}",
         )
 
         self.query = query
@@ -145,7 +155,7 @@ class MongoDbCollectionDroppedError(MongoDbError):
 
         """
         super().__init__(
-            database_name, collection_name,
-            'Cannot perform operation on dropped collection'
+            database_name,
+            collection_name,
+            "Cannot perform operation on dropped collection",
         )
-

@@ -1,8 +1,10 @@
-from typing import Optional
+from typing import Optional, List
 
+import certifi
 import pymongo
 from pymongo.cursor import Cursor
-import certifi
+from pymongo.collection import Collection
+from pymongo.database import Database
 
 import pyutils.database.mongo.errors as err
 
@@ -24,21 +26,19 @@ class MongoClientHandler:
             Name of the collection to be used.
 
         """
-        self.client = None
+        self.client: pymongo.MongoClient = None
 
-        self.database_handler = None
-        self.collection_handler = None
+        self.database_handler: Database = None
+        self.collection_handler: Collection = None
 
         self.database_name = database_name
         self.collection_name = collection_name
 
-        self.collection_dropped = None
-        
+        self.collection_dropped = False
+
         self.connect(connection_string, database_name, collection_name)
 
-    def connect(
-        self, connection_string: str, database_name: str, collection_name: str
-    ):
+    def connect(self, connection_string: str, database_name: str, collection_name: str):
         """Connect to a specific collection in the mongodb cluster.
 
         Parameters
@@ -51,9 +51,7 @@ class MongoClientHandler:
             Name of the collection to be used.
 
         """
-        self.client = pymongo.MongoClient(
-            connection_string, tlsCAFile=certifi.where()
-        )
+        self.client = pymongo.MongoClient(connection_string, tlsCAFile=certifi.where())
 
         self.database_handler = self.client[database_name]
         self.collection_handler = self.database_handler[collection_name]
@@ -84,13 +82,11 @@ class MongoClientHandler:
         insert_result = self.collection_handler.insert_one(data)
 
         if not insert_result.acknowledged:
-            raise err.MongoDbInsertOneError(
-                self.database_name, self.collection_name
-            )
+            raise err.MongoDbInsertOneError(self.database_name, self.collection_name)
 
         return str(insert_result.inserted_id)
 
-    def insert_batch(self, data: [dict]) -> [str]:
+    def insert_batch(self, data: List[dict]) -> List[str]:
         """Insert a set of data points in the database.
 
         Parameters
@@ -226,9 +222,7 @@ class MongoClientHandler:
         """
         self._check_if_operation_can_be_run()
 
-        update_result = self.collection_handler.update_one(
-            query, {'$set': new_values}
-        )
+        update_result = self.collection_handler.update_one(query, {"$set": new_values})
 
         if not update_result.acknowledged:
             raise err.MongoDbUpdateError(
@@ -271,9 +265,7 @@ class MongoClientHandler:
         """
         self._check_if_operation_can_be_run()
 
-        update_result = self.collection_handler.update_many(
-            query, {'$set': new_values}
-        )
+        update_result = self.collection_handler.update_many(query, {"$set": new_values})
 
         if not update_result.acknowledged:
             raise err.MongoDbUpdateError(
@@ -309,7 +301,9 @@ class MongoClientHandler:
 
         if not deletion_result.acknowledged:
             raise err.MongoDbDeleteError(
-                self.database_name, self.collection_name, query,
+                self.database_name,
+                self.collection_name,
+                query,
             )
 
         return deletion_result.deleted_count
@@ -341,7 +335,9 @@ class MongoClientHandler:
 
         if not deletion_result.acknowledged:
             raise err.MongoDbDeleteError(
-                self.database_name, self.collection_name, query,
+                self.database_name,
+                self.collection_name,
+                query,
             )
 
         return deletion_result.deleted_count

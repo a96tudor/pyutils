@@ -5,7 +5,10 @@ class MongoDriverNewsfeelService:
     """Driver intended to be used by `newsfeel-service`."""
 
     def __init__(
-        self, connection_string: str, database_name: str, collection_name: str,
+        self,
+        connection_string: str,
+        database_name: str,
+        collection_name: str,
     ):
         """Connect to a specific collection in the mongodb cluster.
 
@@ -23,11 +26,14 @@ class MongoDriverNewsfeelService:
         self._database_name = database_name
         self._collection_name = collection_name
 
-        self.client_handler = None
+        self.client_handler: MongoClientHandler
         self.connect_to(connection_string, database_name, collection_name)
 
     def connect_to(
-        self, connection_string: str, database_name: str, collection_name: str,
+        self,
+        connection_string: str,
+        database_name: str,
+        collection_name: str,
     ):
         """Connect to a MongoDB collection.
 
@@ -47,13 +53,9 @@ class MongoDriverNewsfeelService:
 
         if self.client_handler is None:
             self.client_handler = MongoClientHandler(
-                connection_string,
-                database_name,
-                collection_name
+                connection_string, database_name, collection_name
             )
 
             return
 
-        self.client_handler.connect(
-            connection_string, database_name, collection_name
-        )
+        self.client_handler.connect(connection_string, database_name, collection_name)
