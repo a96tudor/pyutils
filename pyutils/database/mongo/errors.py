@@ -52,7 +52,10 @@ class MongoDbInsertBatchError(MongoDbError):
     """Error occurring when the `insert_batch` operation failed."""
 
     def __init__(
-        self, database_name: str, collection_name: str, number_of_items: int,
+        self,
+        database_name: str,
+        collection_name: str,
+        number_of_items: int,
     ):
         """Raise when the `insert_batch` operation failed.
 

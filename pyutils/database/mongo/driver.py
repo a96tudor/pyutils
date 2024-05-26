@@ -1,7 +1,7 @@
 from pyutils.database.mongo.client_handler import MongoClientHandler
 
 
-class MongoDriverNewsfeelService:
+class MongoDriver:
     """Driver intended to be used by `newsfeel-service`."""
 
     def __init__(
@@ -58,4 +58,8 @@ class MongoDriverNewsfeelService:
 
             return
 
-        self.client_handler.connect(connection_string, database_name, collection_name)
+        self.client_handler.connect(
+            connection_string,
+            database_name,
+            collection_name,
+        )

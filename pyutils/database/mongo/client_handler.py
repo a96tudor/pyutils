@@ -1,9 +1,9 @@
-from typing import Optional, List
+from typing import List, Optional
 
 import certifi
 import pymongo
-from pymongo.cursor import Cursor
 from pymongo.collection import Collection
+from pymongo.cursor import Cursor
 from pymongo.database import Database
 
 import pyutils.database.mongo.errors as err
@@ -82,7 +82,10 @@ class MongoClientHandler:
         insert_result = self.collection_handler.insert_one(data)
 
         if not insert_result.acknowledged:
-            raise err.MongoDbInsertOneError(self.database_name, self.collection_name)
+            raise err.MongoDbInsertOneError(
+                self.database_name,
+                self.collection_name,
+            )
 
         return str(insert_result.inserted_id)
 
@@ -222,7 +225,10 @@ class MongoClientHandler:
         """
         self._check_if_operation_can_be_run()
 
-        update_result = self.collection_handler.update_one(query, {"$set": new_values})
+        update_result = self.collection_handler.update_one(
+            query,
+            {"$set": new_values},
+        )
 
         if not update_result.acknowledged:
             raise err.MongoDbUpdateError(
@@ -265,7 +271,10 @@ class MongoClientHandler:
         """
         self._check_if_operation_can_be_run()
 
-        update_result = self.collection_handler.update_many(query, {"$set": new_values})
+        update_result = self.collection_handler.update_many(
+            query,
+            {"$set": new_values},
+        )
 
         if not update_result.acknowledged:
             raise err.MongoDbUpdateError(
