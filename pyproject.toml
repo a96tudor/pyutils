@@ -1,22 +1,12 @@
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[project]
-name = "pyutils-tavram"
-version = "0.0.1"
-authors = [
-  { name="Tudor Avram", email="a96tudor@gmail.com" },
-]
-description = "A collection of small python-related utils"
+[tool.poetry]
+name = "pyutils"
+version = "0.1.0"
+description = "Various utilities useful for Python projects"
+repository = "https://github.com/a96tudor/pyutils"
+authors = ["Tudor Avram <a96tudor@gmail.com>"]
 readme = "README.md"
-requires-python = ">=3.8"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-]
 
-[project.urls]
-Homepage = "https://github.com/a96tudor/pyutils"
-Issues = "https://github.com/a96tudor/pyutils/issues"
+[tool.poetry.dependencies]
+python = "^3.7"
+pymongo = "4.7.2"
+
