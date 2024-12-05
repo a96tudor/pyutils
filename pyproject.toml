@@ -10,9 +10,19 @@ readme = "README.md"
 python = ">=3.8,<4.0"
 pymongo = "4.7.2"
 certifi = "2024.2.2"
+typing-extensions = "4.12.2"
 
 [tool.poetry.dev-dependencies]
 python = ">=3.8,<4.0"
 pymongo = "4.7.2"
 tox = "4.15.0"
 pytest = "8.2.1"
+
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 88
+skip = ".git, .pyre, __pycache__, build, dist, venv, .tox"
