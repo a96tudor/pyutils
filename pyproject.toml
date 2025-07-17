@@ -11,12 +11,15 @@ python = ">=3.8,<4.0"
 pymongo = "4.7.2"
 certifi = "2024.2.2"
 typing-extensions = "4.12.2"
+hvac = "2.3.0"
+
 
 [tool.poetry.dev-dependencies]
 python = ">=3.8,<4.0"
 pymongo = "4.7.2"
 tox = "4.15.0"
 pytest = "8.2.1"
+hvac = "2.3.0"
 
 
 [tool.isort]
