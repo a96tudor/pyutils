@@ -7,11 +7,11 @@ from typing import Any, Generator, List
 class SecretValues:
     def __init__(self, name: List[str], secret: dict):
         self.name = name
-        self._secret = secret
+        self.secret = secret
         self._locked = True
 
     def __getattribute__(self, attr_name: str) -> Any:
-        if attr_name != "_secret":
+        if attr_name != "secret":
             return super().__getattribute__(attr_name)
         else:
             if self._locked:

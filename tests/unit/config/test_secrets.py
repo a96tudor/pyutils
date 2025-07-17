@@ -25,7 +25,7 @@ def test_repr_unlocked(secret_values):
 
 def test_get_attribute(secret_values):
     with secret_values.unlock() as sv:
-        assert sv._secret == {"key1": "value1", "key2": "value2"}
+        assert sv.secret == {"key1": "value1", "key2": "value2"}
         assert sv.name == ["something"]
 
     with pytest.raises(PermissionError):
