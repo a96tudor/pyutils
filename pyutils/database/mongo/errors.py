@@ -1,7 +1,9 @@
 import json
 
+from pyutils.helpers.errors import Error
 
-class MongoDbError(Exception):
+
+class MongoDbError(Error):
     """Base class for a mongodb-related error."""
 
     def __init__(self, database_name: str, collection_name: str, message: str):
