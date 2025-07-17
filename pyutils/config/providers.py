@@ -44,7 +44,7 @@ class FileConfigProvider(ConfigProvider):
         if base_path:
             config_value = get_in(self.loaded_config, base_path + config_path)
 
-        return SecretValues(config_path, config_value) # type: ignore
+        return SecretValues(config_path, config_value)  # type: ignore
 
 
 class YAMLConfigProvider(FileConfigProvider):

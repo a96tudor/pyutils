@@ -1,7 +1,7 @@
 __all__ = ["SecretValues"]
 
 from contextlib import contextmanager
-from typing import Any, List, Generator
+from typing import Any, Generator, List
 
 
 class SecretValues:

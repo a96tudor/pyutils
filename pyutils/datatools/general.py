@@ -16,7 +16,7 @@ def get_in(
                 coll_or_value = default
                 break
         elif isinstance(coll_or_value, Iterable) and key in coll_or_value:
-            coll_or_value = coll_or_value[key] # type: ignore
+            coll_or_value = coll_or_value[key]  # type: ignore
         else:
             if formatter:
                 return formatter(default)
