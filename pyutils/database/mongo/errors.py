@@ -1,12 +1,25 @@
 import json
 
-from pyutils.helpers.errors import Error
+from pyutils.database.errors import DatabaseError
 
 
-class MongoDbError(Error):
+class MongoDbError(DatabaseError):
     """Base class for a mongodb-related error."""
 
-    def __init__(self, database_name: str, collection_name: str, message: str):
+    _extension_details = {
+        "category": "server",
+        "code": "MongoDbError",
+        "severity": "error",
+    }
+
+    def __init__(
+        self,
+        database_name: str,
+        collection_name: str,
+        message: str,
+        *args,
+        **kwargs,
+    ):
         """Base class for a mongodb-related error.
 
         Parameters
@@ -21,7 +34,10 @@ class MongoDbError(Error):
         """
         super().__init__(
             f"{message} when connected to database {database_name}, "
-            f"collection {collection_name}"
+            f"collection {collection_name}",
+            engine="MongoDB",
+            *args,
+            **kwargs,
         )
         self.database_name = database_name
         self.collection_name = collection_name
@@ -30,7 +46,13 @@ class MongoDbError(Error):
 class MongoDbInsertOneError(MongoDbError):
     """Error occurring when the `insert_one` operation failed."""
 
-    def __init__(self, database_name: str, collection_name: str):
+    _extension_details = {
+        "category": "server",
+        "code": "MongoDbInsertOneError",
+        "severity": "error",
+    }
+
+    def __init__(self, database_name: str, collection_name: str, *args, **kwargs):
         """Raise when the `insert_one` operation failed.
 
         Parameters
@@ -47,17 +69,27 @@ class MongoDbInsertOneError(MongoDbError):
             database_name,
             collection_name,
             "Failed to insert one item in the collection",
+            *args,
+            **kwargs,
         )
 
 
 class MongoDbInsertBatchError(MongoDbError):
     """Error occurring when the `insert_batch` operation failed."""
 
+    _extension_details = {
+        "category": "server",
+        "code": "MongoDbInsertBatchError",
+        "severity": "error",
+    }
+
     def __init__(
         self,
         database_name: str,
         collection_name: str,
         number_of_items: int,
+        *args,
+        **kwargs,
     ):
         """Raise when the `insert_batch` operation failed.
 
@@ -77,6 +109,8 @@ class MongoDbInsertBatchError(MongoDbError):
             database_name,
             collection_name,
             f"Failed to insert {number_of_items} data points in the collection",
+            *args,
+            **kwargs,
         )
 
         self.number_of_items = number_of_items
@@ -85,12 +119,20 @@ class MongoDbInsertBatchError(MongoDbError):
 class MongoDbUpdateError(MongoDbError):
     """Error occurring when the `update` operation failed."""
 
+    _extension_details = {
+        "category": "server",
+        "code": "MongoDbUpdateError",
+        "severity": "error",
+    }
+
     def __init__(
         self,
         database_name: str,
         collection_name: str,
         query: dict,
         new_values: dict,
+        *args,
+        **kwargs,
     ):
         """Raise when the `update` operation failed.
 
@@ -113,6 +155,8 @@ class MongoDbUpdateError(MongoDbError):
             collection_name,
             f"Could not update documents matching {json.dumps(query)} with "
             f"{json.dumps(new_values)}",
+            *args,
+            **kwargs,
         )
 
         self.query = query
@@ -122,7 +166,20 @@ class MongoDbUpdateError(MongoDbError):
 class MongoDbDeleteError(MongoDbError):
     """Error occurring when the `delete` operation failed."""
 
-    def __init__(self, database_name: str, collection_name: str, query: dict):
+    _extension_details = {
+        "category": "server",
+        "code": "MongoDbDeleteError",
+        "severity": "error",
+    }
+
+    def __init__(
+        self,
+        database_name: str,
+        collection_name: str,
+        query: dict,
+        *args,
+        **kwargs,
+    ):
         """Raise when the `delete` operation failed.
 
         Parameters
@@ -139,6 +196,8 @@ class MongoDbDeleteError(MongoDbError):
             database_name,
             collection_name,
             f"Failed to delete documents matching {json.dumps(query)}",
+            *args,
+            **kwargs,
         )
 
         self.query = query
@@ -147,7 +206,13 @@ class MongoDbDeleteError(MongoDbError):
 class MongoDbCollectionDroppedError(MongoDbError):
     """Error occurring when dropping a collection."""
 
-    def __init__(self, database_name: str, collection_name: str):
+    _extension_details = {
+        "category": "server",
+        "code": "MongoDbCollectionDroppedError",
+        "severity": "error",
+    }
+
+    def __init__(self, database_name: str, collection_name: str, *args, **kwargs):
         """Raise when dropping a collection fails.
 
         Parameters
@@ -163,4 +228,6 @@ class MongoDbCollectionDroppedError(MongoDbError):
             database_name,
             collection_name,
             "Cannot perform operation on dropped collection",
+            *args,
+            **kwargs,
         )
