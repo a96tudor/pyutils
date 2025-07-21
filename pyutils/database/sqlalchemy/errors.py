@@ -33,3 +33,22 @@ class SqlAlchemyConnectionError(SqlAlchemyError):
         **kwargs,
     ):
         super().__init__(f"{message}: {error}" if error else message, *args, **kwargs)
+
+
+class SQLAlchemySessionError(SqlAlchemyError):
+    """Exception raised when there is an issue with the SQLAlchemy session."""
+
+    _extension_details = {
+        "category": "server",
+        "code": "SQLAlchemySessionError",
+        "severity": "error",
+    }
+
+    def __init__(
+        self,
+        message: Optional[str] = "An error occurred with the SQLAlchemy session.",
+        error: Optional[Exception] = None,
+        *args,
+        **kwargs,
+    ):
+        super().__init__(f"{message}: {error}" if error else message, *args, **kwargs)

@@ -1,24 +1,29 @@
 import time
 import urllib.parse
 import uuid
-from typing import Any, Callable, Optional, Union
+from typing import Any, Optional, Union
 from urllib.parse import quote
 
 import sqlalchemy
 import sqlalchemy.engine
 import sqlalchemy.orm
 import sqlalchemy.pool
-from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import declarative_base
-from sqlalchemy.orm.query import Query as OrmQuery
+from sqlalchemy.orm.scoping import ScopedSession
 
 from pyutils.config.providers import ConfigProvider
 from pyutils.config.secrets import SecretValues
-from pyutils.database.sqlalchemy.errors import SqlAlchemyConnectionError
-from pyutils.logging.logger import LoggerBase
+from pyutils.database.sqlalchemy.errors import (
+    SqlAlchemyConnectionError,
+    SQLAlchemySessionError,
+)
+from pyutils.database.sqlalchemy.query import RetryingBaseQuery
+from pyutils.decorators.retry_connection import retry_connection
+from pyutils.decorators.singleton import singleton
+from pyutils.logging.logger import Logger
 
 
-def DBFactory(logger_: LoggerBase):
+def DBFactory(logger_: Logger):
     class DB:
         """intended to be replacement for Flask-SQLAlchemy's db (SQLAlchemy())"""
 
@@ -28,7 +33,7 @@ def DBFactory(logger_: LoggerBase):
         engine: Union[sqlalchemy.engine.Engine, sqlalchemy.engine.Connection, None] = (
             None
         )
-        logger: LoggerBase = logger_
+        logger: Logger = logger_
 
         @classmethod
         def get_tables_for_bind(cls, bind):
@@ -64,6 +69,7 @@ def DBFactory(logger_: LoggerBase):
         ):
             try:
                 cls.session = get_session(
+                    cls.logger,
                     config_path,
                     provider=provider,
                     db_name=db_name,
@@ -174,6 +180,7 @@ def DBFactory(logger_: LoggerBase):
     return DB
 
 
+@singleton
 class _SessionManager:
     def __init__(self, *session_args, **session_kwargs):
         super().__init__()
@@ -225,7 +232,7 @@ class _SessionManager:
         self.factory.shutdown_engine()
 
 
-def get_connection_string(
+def __get_connection_string(
     config_path: list, provider: ConfigProvider, db_name: str = None
 ) -> Optional[str]:
     config: SecretValues = provider.provide(config_path)
@@ -259,3 +266,104 @@ def get_connection_string(
             connection_string = f"{connection_string}?{query_params}"
 
     return connection_string
+
+
+@retry_connection(retry_count=3, delay=5)
+def get_session(
+    logger: Logger,
+    config_path: list,
+    provider: ConfigProvider = None,
+    db_name: str = None,
+    engine_args: Optional[dict] = None,
+    session_args: Optional[dict] = None,
+) -> ScopedSession:
+    if engine_args is None:
+        engine_args = {}
+    if session_args is None:
+        session_args = {}
+
+    _session_args = {
+        # Default List
+        "autoflush": False,
+        "autocommit": False,
+        "expire_on_commit": True,
+        "query_cls": RetryingBaseQuery,  # Uncomment to use DB Query retry method
+        "info": {},  # arbitrary data to be associated with this Session Obj
+    }
+    _session_args.update(session_args)
+
+    curr_time = time.time()
+    invoke_id = str(uuid.uuid4())
+    invoke_ref = f"{curr_time}_{invoke_id}"
+    _session_args["info"]["ident_db_session"] = invoke_ref
+    _session_args["info"]["ident_db_config"] = str(config_path)
+    _session_args["info"]["ident_db_name"] = db_name
+
+    # Crtical this is needed for tracing to the source, if the DB session keeps failing
+    #   even after rollback. Essentially all new connection may have a error of
+    #   `Can't reconnect until invalid transaction is rolled back`
+    logger.debug(
+        {
+            "ident_db_sess_obj": invoke_ref,
+            "ident_db_config": str(config_path),
+            "ident_db_name": db_name,
+            "message": (
+                f"Creating new DB Session for '{config_path}', DB_NAME: '{db_name}'."
+                f" DB Session Obj Ident: '{invoke_ref}'"
+            ),
+        }
+    )
+
+    connection_string = __get_connection_string(
+        config_path, provider=provider, db_name=db_name
+    )
+    engine = sqlalchemy.create_engine(
+        connection_string, paramstyle="format", **engine_args
+    )
+    factory = sqlalchemy.orm.sessionmaker(bind=engine, **_session_args)
+    session = sqlalchemy.orm.scoped_session(factory)
+    return session
+
+
+def get_session_manager(session_name: str) -> _SessionManager:
+    session_manager = _SessionManager(identifier=session_name)
+
+    return session_manager
+
+
+def shutdown_engine(sess_mgr_obj: _SessionManager, exc):
+    # Teardown old session
+    teardown_session(sess_mgr_obj, exc)
+
+    shutdown_exc = []
+    try:
+        sess_mgr_obj.shutdown_engine()
+    except Exception as exc:
+        shutdown_exc.append(exc)
+
+    if shutdown_exc:
+        raise SQLAlchemySessionError(
+            "Exception ocurred while Shutting down"
+            f" SessionManager DB Session Engine: {shutdown_exc}"
+        )
+
+
+def teardown_session(sess_mgr_obj: _SessionManager, exc):
+    try:
+        # Things should have already been committed before closing the connection
+        # If no transaction is in progress, this method is a pass-through.
+        sess_mgr_obj.session.rollback()
+    except Exception:
+        pass
+
+    teardown_exc = []
+    try:
+        sess_mgr_obj.teardown_session(exc=exc)
+    except Exception as exc:
+        teardown_exc.append(exc)
+
+    if teardown_exc:
+        raise SQLAlchemySessionError(
+            "Exception ocurred while Tearing down"
+            f" SessionManager DB Session: {teardown_exc}"
+        )

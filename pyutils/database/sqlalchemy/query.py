@@ -42,41 +42,9 @@ class RetryingBaseQuery(OrmQuery):
                 _db_sess_info = self.session.info
         except Exception:
             pass
-
-        ident_db_session = _db_sess_info.get("ident_db_session")
-        ident_db_config = _db_sess_info.get("ident_db_config")
-        ident_db_name = _db_sess_info.get("ident_db_name")
-
         for attempts in range(1, max_attempts + 1):
             try:
                 return iter_func()
-            # except OperationalError as exc:
-            #     exc_str = str(exc).lower()
-            #     if (
-            #         "server closed the connection unexpectedly" in exc_str
-            #         and attempts < max_attempts
-            #     ):
-            #         sleep_for = 2**attempts  # exponential backoff, power of 2
-            #         logger.warning(
-            #             {
-            #                 "ident_db_sess_obj": ident_db_session,
-            #                 "ident_db_config": ident_db_config,
-            #                 "ident_db_name": ident_db_name,
-            #                 "message": (
-            #                     "RetryingBaseQuery :: Database connection error."
-            #                     f" DB Session Obj Ident: '{ident_db_session}' \n"
-            #                     f" Retrying Strategy => sleeping for {sleep_for}s"
-            #                     " and will retry."
-            #                     f" (attempt #{attempts} of {max_attempts})"
-            #                     f"\n Detailed query impacted: {exc}"
-            #                 ),
-            #             }
-            #         )
-            #         time.sleep(sleep_for)
-            #         continue
-
-            #     # raise the error
-            #     raise
             except Exception as exc:
                 exc_str = ""
                 try:
