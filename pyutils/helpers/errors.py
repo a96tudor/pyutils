@@ -82,6 +82,6 @@ class DataValidationError(Error):
 
     _extension_details = {
         "category": "server",
-        "code": "DataValidation",
+        "code": "DataValidationError",
         "severity": "error",
     }
