@@ -29,4 +29,4 @@ def test_get_attribute(secret_values):
         assert sv.name == ["something"]
 
     with pytest.raises(PermissionError):
-        _ = secret_values._secret  # Should raise PermissionError when locked
+        _ = secret_values.secret  # Should raise PermissionError when locked
