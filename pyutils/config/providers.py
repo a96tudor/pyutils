@@ -39,10 +39,12 @@ class FileConfigProvider(ConfigProvider):
                 self.loaded_config = self.file_loader(config_file)
 
         # Declared here because pyre type checks doesn't detect the 'if' test below
-        base_path = self.__base_config_path
-        config_value = None
+        # Access attribute from ConfigProvider; avoid name mangling issues
+        base_path = self._ConfigProvider__base_config_path
         if base_path:
             config_value = get_in(self.loaded_config, base_path + config_path)
+        else:
+            config_value = get_in(self.loaded_config, config_path)
 
         return SecretValues(config_path, config_value)  # type: ignore
 
