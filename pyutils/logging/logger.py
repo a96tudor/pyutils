@@ -35,30 +35,33 @@ class Logger(Logger_):
         """
         return self.__JSON_IN_STRING_REGEX.findall(msg)
 
-    def scrub_pii(self, obj):
+    def __scrub_pii(self, obj):
         """Recursively scrub PII from a dict or list."""
         if isinstance(obj, dict):
             return {
                 k: (
                     "***REDACTED***"
                     if k.lower() in self.__pii_keys
-                    else self.scrub_pii(v)
+                    else self.__scrub_pii(v)
                 )
                 for k, v in obj.items()
             }
         elif isinstance(obj, list):
-            return [self.scrub_pii(item) for item in obj]
+            return [self.__scrub_pii(item) for item in obj]
         return obj
 
     def __scrub_json_in_text(self, text: str) -> str:
         """Find JSON in text, scrub it, and return cleaned text."""
+        if not self.__pii_keys:
+            return text
+
         cleaned_text = text
         json_candidates = self.__find_json_patterns_in_message(text)
 
         for candidate in json_candidates:
             try:
                 parsed = json.loads(candidate)
-                cleaned = self.scrub_pii(parsed)
+                cleaned = self.__scrub_pii(parsed)
                 cleaned_json = json.dumps(cleaned)
                 cleaned_text = cleaned_text.replace(candidate, cleaned_json)
             except json.JSONDecodeError:
