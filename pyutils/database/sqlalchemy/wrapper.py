@@ -17,11 +17,11 @@ from pyutils.database.sqlalchemy.filters import CountFilter, Filter, TupleInFilt
 from pyutils.database.sqlalchemy.joins import Join
 from pyutils.datatools.attributes import Attribute
 from pyutils.helpers.errors import BadArgumentsError, DataValidationError
-from pyutils.logging.logger import LoggerBase
+from pyutils.logging.logger import Logger
 
 
 class DBWrapper:
-    def __init__(self, logger: LoggerBase):
+    def __init__(self, logger: Logger):
         self.logger = logger
 
     class GetResultType(Enum):
