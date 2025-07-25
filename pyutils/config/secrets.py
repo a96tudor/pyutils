@@ -7,17 +7,17 @@ from typing import Any, Generator, List
 class SecretValues:
     def __init__(self, name: List[str], secret: dict):
         self.name = name
-        self._secret = secret
+        self.secret = secret
         self._locked = True
 
     def __getattribute__(self, attr_name: str) -> Any:
-        if attr_name not in ("secret", "_secret"):
+        if attr_name not in ("secret", "secret"):
             return super().__getattribute__(attr_name)
         else:
             if self._locked:
                 raise PermissionError(f"Cannot access locked secret: {self}")
             else:
-                return super().__getattribute__("_secret")
+                return super().__getattribute__("secret")
 
     @contextmanager
     def unlock(self) -> Generator:
