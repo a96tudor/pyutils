@@ -13,7 +13,4 @@ def get_jwt_token(
 
 
 def decode_token(token: str, key: str) -> dict:
-    try:
-        return jwt.decode(token, key=key, algorithms=['HS256'])
-    except Exception as e:
-        print(e)
+    return jwt.decode(token, key=key, algorithms=['HS256'])
