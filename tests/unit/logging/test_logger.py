@@ -1,12 +1,12 @@
 import io
 import json
-import threading
 import logging
+import threading
 
 import pytest
 
-from pyutils.logging.logger import Logger
 from pyutils.logging.formatters import JSONLogFormatter
+from pyutils.logging.logger import Logger
 
 
 @pytest.fixture

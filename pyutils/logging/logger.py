@@ -7,7 +7,6 @@ from typing import Iterable, List, Optional, Union
 
 from pyutils.decorators.singleton import singleton
 
-
 _execution_id: ContextVar[Optional[str]] = ContextVar("execution_id", default=None)
 
 
