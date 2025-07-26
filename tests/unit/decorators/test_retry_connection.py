@@ -1,6 +1,6 @@
 import builtins
-from pyutils.decorators.retry_connection import retry_connection
-from pyutils.decorators.retry_connection import time
+
+from pyutils.decorators.retry_connection import retry_connection, time
 
 
 def test_retry_connection_success_after_retry(mocker):

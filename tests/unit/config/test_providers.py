@@ -1,6 +1,12 @@
 import json
+
 import yaml
-from pyutils.config.providers import FileConfigProvider, JSONConfigProvider, YAMLConfigProvider
+
+from pyutils.config.providers import (
+    FileConfigProvider,
+    JSONConfigProvider,
+    YAMLConfigProvider,
+)
 
 
 def test_file_config_provider_loads_and_caches(tmp_path, mocker):

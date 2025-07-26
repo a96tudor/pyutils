@@ -76,6 +76,4 @@ def test_better_stack_handler_emits(mocker):
         exc_info=None,
     )
     handler.emit(record)
-    post.assert_called_once_with(
-        handler.endpoint, headers=handler.headers, data="msg"
-    )
+    post.assert_called_once_with(handler.endpoint, headers=handler.headers, data="msg")

@@ -17,6 +17,7 @@ sqlalchemy = "^2.0.41"
 psycopg2-binary = "2.9.10"
 rfc3339 = "^6.2"
 pyjwt = "^2.10.1"
+jinja2 = "^3.1.6"
 
 
 [tool.poetry.dev-dependencies]
