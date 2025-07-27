@@ -54,3 +54,17 @@ def test_delete_models(mocker):
     session.delete.assert_has_calls([call(models[0]), call(models[1])])
     assert result == len(models)
 
+
+def test_create_models(mocker):
+    wrapper = DBWrapper(mocker.Mock())
+    session = mocker.Mock()
+    mocked_scope = mocker.patch.object(wrapper, "safe_session_scope")
+    mocked_scope.return_value = _context_manager(session)
+    models = [mocker.Mock(), mocker.Mock()]
+
+    result = wrapper._create_models(models, "err")
+
+    mocked_scope.assert_called_once_with("err")
+    session.add_all.assert_called_once_with(models)
+    assert result == models
+
