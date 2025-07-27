@@ -266,6 +266,31 @@ class DBWrapper:
 
         return result
 
+    def _create_models(
+        self, models: [DB.Model], error_message: Optional[str] = None
+    ) -> [DB.Model]:
+        """Create multiple models in one session.
+
+        Parameters
+        ----------
+        models: list[DB.Model]
+            List of model instances to create.
+        error_message: str, optional
+            Custom error message used when the creation fails.
+
+        Returns
+        -------
+        list[DB.Model]
+            The created models.
+        """
+
+        if error_message is None or error_message == "":
+            error_message = f"Error creating {models}"
+        with self.safe_session_scope(error_message) as session:
+            session.add_all(models)
+
+        return models
+
     def _delete_model(
         self, model: DB.Model, error_message: Optional[str] = None
     ) -> int:
