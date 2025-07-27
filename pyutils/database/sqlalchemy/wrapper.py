@@ -266,6 +266,54 @@ class DBWrapper:
 
         return result
 
+    def _delete_model(
+        self, model: DB.Model, error_message: Optional[str] = None
+    ) -> int:
+        """Delete a single model from the session.
+
+        Parameters
+        ----------
+        model: DB.Model
+            The model instance to delete.
+        error_message: str, optional
+            Custom error message used when the delete fails.
+
+        Returns
+        -------
+        int
+            Number of deleted models. Always ``1`` if no exception is raised.
+        """
+
+        return self._delete_models([model], error_message)
+
+    def _delete_models(
+        self, models: [DB.Model], error_message: Optional[str] = None
+    ) -> int:
+        """Delete multiple models in one session.
+
+        Parameters
+        ----------
+        models: list[DB.Model]
+            List of model instances to delete.
+        error_message: str, optional
+            Custom error message used when the delete fails.
+
+        Returns
+        -------
+        int
+            Number of deleted models.
+        """
+
+        if error_message is None or error_message == "":
+            error_message = f"Error deleting {models}"
+        with self.safe_session_scope(error_message) as session:
+            deleted = 0
+            for model in models:
+                session.delete(model)
+                deleted += 1
+
+        return deleted
+
 
 class DBWrapperWithSubQueries(DBWrapper, ABC):
     def _get_attributes_filters(self, model: DB.Model, attributes: [Attribute]):
