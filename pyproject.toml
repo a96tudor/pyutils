@@ -19,6 +19,7 @@ rfc3339 = "^6.2"
 pyjwt = "^2.10.1"
 jinja2 = "^3.1.6"
 ariadne = "^0.26.2"
+flask = "^3.1.1"
 
 
 [tool.poetry.dev-dependencies]
