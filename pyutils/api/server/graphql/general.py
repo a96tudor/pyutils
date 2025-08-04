@@ -26,13 +26,13 @@ from pyutils.helpers.execution_info import get_execution_id
 from pyutils.helpers.general import current_utc_rfc3339
 
 
-def _load_graphql_schema(path: str):
+def load_graphql_schema(path: str):
     provider = YAMLConfigProvider(path)
     schema_location = provider.provide(["schema_location"], secret=False)
     return load_schema_from_path(schema_location)
 
 
-schema = _load_graphql_schema
+schema = load_graphql_schema
 query = QueryType()
 mutation = MutationType()
 
@@ -136,7 +136,7 @@ def generate_response(graphql_schema: Any, request: Any, **kwargs):
         data=request_data,
         context_value=Context(request=request),
         debug=False,
-        error_formatter=_error_formatter,
+        error_formatter=error_formatter,
         **kwargs,
     )
     return response
@@ -159,7 +159,7 @@ def is_field_requested(requested_fields: List[dict], field_name: str) -> bool:
     return False
 
 
-def _error_formatter(error_obj: GraphQLError, debug: bool = False) -> dict:
+def error_formatter(error_obj: GraphQLError, debug: bool = False) -> dict:
     if debug:
         # If debug is enabled, reuse Ariadne's formatting logic (not required)
         #   use a separate dict object to track formatted error info which will get
@@ -239,7 +239,7 @@ def _error_formatter(error_obj: GraphQLError, debug: bool = False) -> dict:
     return formatted_err
 
 
-def _fields_from_selections(
+def fields_from_selections(
     info: GraphQLResolveInfo, selections: List[SelectionNode]
 ) -> List[dict]:
     """
@@ -278,7 +278,7 @@ def _fields_from_selections(
                 selection, "selection_set", None
             ):
                 _selections = getattr(selection.selection_set, "selections", None) or []
-                selection = _fields_from_selections(info, _selections)
+                selection = fields_from_selections(info, _selections)
                 if selection:
                     name["selections"].extend(selection)
             else:
@@ -288,14 +288,14 @@ def _fields_from_selections(
                 selection, "selection_set", None
             ):
                 _selections = getattr(selection.selection_set, "selections", None) or []
-                selection = _fields_from_selections(info, _selections)
+                selection = fields_from_selections(info, _selections)
                 if selection:
                     name["selections"].extend(selection)
         elif isinstance(selection, FragmentSpreadNode):
             name = {"name": selection.name.value, "selections": []}
             fragment = info.fragments[selection.name.value]
             name["selections"].extend(
-                _fields_from_selections(info, fragment.selection_set.selections)
+                fields_from_selections(info, fragment.selection_set.selections)
             )
         field_selections.append(name)
     return field_selections
@@ -310,6 +310,6 @@ def get_selected_fields(info: GraphQLResolveInfo) -> List[dict]:
         if node.selection_set is None:
             continue
         selections = node.selection_set.selections or []
-        names.extend(_fields_from_selections(info, selections))
+        names.extend(fields_from_selections(info, selections))
 
     return names
