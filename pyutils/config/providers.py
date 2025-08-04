@@ -33,7 +33,9 @@ class FileConfigProvider(ConfigProvider):
         self.file_loader = file_loader
         self.loaded_config: Optional[dict] = None
 
-    def provide(self, config_path: List[str]) -> Optional[SecretValues]:
+    def provide(
+        self, config_path: List[str], secret: Optional[bool] = True
+    ) -> Union[SecretValues, dict]:
         if self.loaded_config is None:
             with open(self.config_filename) as config_file:
                 self.loaded_config = self.file_loader(config_file)
@@ -46,7 +48,10 @@ class FileConfigProvider(ConfigProvider):
         else:
             config_value = get_in(self.loaded_config, config_path)
 
-        return SecretValues(config_path, config_value)  # type: ignore
+        if secret:
+            return SecretValues(config_path, config_value)  # type: ignore
+        else:
+            return config_value
 
 
 class YAMLConfigProvider(FileConfigProvider):
