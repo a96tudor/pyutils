@@ -85,3 +85,16 @@ class DataValidationError(Error):
         "code": "DataValidationError",
         "severity": "error",
     }
+
+
+class BadRequestError(Error):
+    """Exception raised for bad requests."""
+
+    _extension_details = {
+        "category": "client",
+        "code": "BadRequestError",
+        "severity": "error",
+    }
+
+    def __init__(self, message="Bad request.", *args, **kwargs):
+        super().__init__(message, *args, **kwargs)

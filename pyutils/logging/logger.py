@@ -1,13 +1,11 @@
 import json
 import re
-from contextvars import ContextVar
 from logging import INFO, Formatter, Handler
 from logging import Logger as Logger_
 from typing import Iterable, List, Optional, Union
 
 from pyutils.decorators.singleton import singleton
-
-_execution_id: ContextVar[Optional[str]] = ContextVar("execution_id", default=None)
+from pyutils.helpers.execution_info import get_execution_id
 
 
 @singleton
@@ -31,18 +29,6 @@ class Logger(Logger_):
         self.propagate = False
         self.formatter = formatter
         self.__pii_keys = pii_keys if pii_keys else []
-
-    def set_execution_id(self, execution_id: str) -> None:
-        """Set the execution ID for the current context."""
-        _execution_id.set(execution_id)
-
-    def get_execution_id(self) -> Optional[str]:
-        """Return the execution ID for the current context if set."""
-        return _execution_id.get()
-
-    def clear_execution_id(self) -> None:
-        """Clear the execution ID for the current context."""
-        _execution_id.set(None)
 
     def __find_json_patterns_in_message(self, msg: str) -> List[str]:
         """
@@ -90,7 +76,7 @@ class Logger(Logger_):
         """
         msg = self.__scrub_json_in_text(msg)
         extra = kwargs.pop("extra", {}) or {}
-        execution_id = self.get_execution_id()
+        execution_id = get_execution_id()
         if execution_id is not None and "execution_id" not in extra:
             extra["execution_id"] = execution_id
         kwargs["extra"] = extra
