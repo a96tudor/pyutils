@@ -2,9 +2,9 @@ from typing import Any, List, Optional
 
 import redis
 
+from pyutils.caching.base import AbstractCacheProvider
 from pyutils.config.providers import ConfigProvider
 from pyutils.logging.logger import Logger
-from pyutils.caching.base import AbstractCacheProvider
 
 DEFAULT_TIME_TO_LIVE = 300
 

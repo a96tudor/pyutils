@@ -1,9 +1,9 @@
 import importlib.util
+from json import JSONEncoder as _JSONEncoder
 from pathlib import Path
 
 from ariadne.explorer import ExplorerPlayground
 from flask import Flask, Response, jsonify, request
-from json import JSONEncoder as _JSONEncoder
 
 from pyutils.api.server.graphql.general import generate_response, validate_request
 from pyutils.config.providers import YAMLConfigProvider

@@ -2,8 +2,8 @@ from typing import Any, List, Optional
 
 from pymemcache.client.base import PooledClient
 
-from pyutils.config.providers import ConfigProvider
 from pyutils.caching.base import AbstractCacheProvider
+from pyutils.config.providers import ConfigProvider
 from pyutils.logging.logger import Logger
 
 DEFAULT_TIME_TO_LIVE = 300
