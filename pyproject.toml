@@ -22,6 +22,8 @@ ariadne = "^0.26.2"
 flask = "^3.1.1"
 flask-talisman = "^1.1.0"
 flask-compress = "^1.18"
+pymemcache = "^4.0.0"
+redis = "^6.2.0"
 
 
 [tool.poetry.dev-dependencies]
