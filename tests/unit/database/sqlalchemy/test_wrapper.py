@@ -67,4 +67,3 @@ def test_create_models(mocker):
     mocked_scope.assert_called_once_with("err")
     session.add_all.assert_called_once_with(models)
     assert result == models
-

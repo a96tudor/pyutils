@@ -20,6 +20,8 @@ pyjwt = "^2.10.1"
 jinja2 = "^3.1.6"
 ariadne = "^0.26.2"
 flask = "^3.1.1"
+flask-talisman = "^1.1.0"
+flask-compress = "^1.18"
 
 
 [tool.poetry.dev-dependencies]
