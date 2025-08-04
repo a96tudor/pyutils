@@ -3,6 +3,7 @@ from pathlib import Path
 
 from ariadne.explorer import ExplorerPlayground
 from flask import Flask, Response, jsonify, request
+from json import JSONEncoder as _JSONEncoder
 
 from pyutils.api.server.graphql.general import generate_response, validate_request
 from pyutils.config.providers import YAMLConfigProvider
@@ -136,3 +137,12 @@ def load_resolvers_and_mutations(graphql_config_location: str):
         load_modules_in_directory(directory)
     for directory in mutation_locations or []:
         load_modules_in_directory(directory)
+
+
+class JSONEncoder(_JSONEncoder):
+    """Custom JSONEncoder for jsonify"""
+
+    def __init__(self, *args, **kwargs):
+        # Set default to str for unsupported types
+        kwargs["default"] = str
+        super().__init__(*args, **kwargs)
