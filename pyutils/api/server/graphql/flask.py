@@ -58,7 +58,7 @@ def attach_graphql_playground_route(app: Flask, environment: str, api_version: s
     return graphql_playground
 
 
-def attach_graphql_server_route(app, graphql_schema, auth_decorator, **kwargs):
+def attach_graphql_server_route(app, graphql_schema, auth_decorator=None, **kwargs):
     """
     Given a Flask app and an executable Ariadne GraphQL schema, attaches a route that
     does the following upon a POST request:

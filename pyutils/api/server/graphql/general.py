@@ -29,7 +29,7 @@ from pyutils.helpers.general import current_utc_rfc3339
 def load_graphql_schema(path: str):
     provider = YAMLConfigProvider(path)
     schema_location = provider.provide(["schema_location"], secret=False)
-    return load_schema_from_path(schema_location)
+    return load_schema_from_path(schema_location[0])
 
 
 schema = load_graphql_schema
