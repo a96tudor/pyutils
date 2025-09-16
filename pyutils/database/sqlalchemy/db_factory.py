@@ -237,7 +237,7 @@ def __get_connection_string(
 ) -> Optional[str]:
     config: SecretValues = provider.provide(config_path)
     connection_string = None
-    with config.unlock() as db_config:
+    with config.unlock().secret as db_config:
         dialect_arg = (
             "+".join(
                 [v for v in [db_config.get("dialect"), db_config.get("driver")] if v]

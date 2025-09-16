@@ -5,7 +5,8 @@ from enum import Enum
 from typing import Any, Callable, List, Optional, Type, Union
 
 from psycopg2 import OperationalError
-from sqlalchemy import Column, DeclarativeBase
+from sqlalchemy import Column
+from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm.query import Query
 from sqlalchemy.orm.session import Session
 
