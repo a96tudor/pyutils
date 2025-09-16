@@ -46,6 +46,13 @@ class DBWrapper:
         return datetime.now(timezone.utc)
 
     @property
+    def db_name(self) -> str:
+        with self._config_provider.provide(
+            self._config_secret_route
+        ).unlock() as config:
+            return config.secret.get("database")
+
+    @property
     @abstractmethod
     def _expire_db_factory(self) -> DBFactory:
         raise NotImplementedError()
@@ -64,8 +71,8 @@ class DBWrapper:
     def _schema(self) -> str:
         with self._config_provider.provide(
             self._config_secret_route
-        ).unlock().secret as config:
-            return config.get("schema")
+        ).unlock() as config:
+            return config.secret.get("schema")
 
     @property
     @abstractmethod
@@ -100,10 +107,12 @@ class DBWrapper:
     @contextmanager
     def session_scope(self, expire_on_commit: bool = True) -> Session:
         session = get_session(
+            self.logger,
             self._config_secret_route,
-            self._get_db_factory(expire_on_commit),
-            expire_on_commit,
-            schema=self._schema,
+            self._config_provider,
+            db_name=self.db_name,
+            session_args={"expire_on_commit": expire_on_commit},
+            # schema=self._schema,
         )
         if session is None:
             raise SqlAlchemyError("Failed to establish a database connection.")

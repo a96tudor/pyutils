@@ -237,7 +237,8 @@ def __get_connection_string(
 ) -> Optional[str]:
     config: SecretValues = provider.provide(config_path)
     connection_string = None
-    with config.unlock().secret as db_config:
+    with config.unlock() as db_config:
+        db_config = db_config.secret
         dialect_arg = (
             "+".join(
                 [v for v in [db_config.get("dialect"), db_config.get("driver")] if v]
@@ -255,8 +256,10 @@ def __get_connection_string(
         connect_string_args["password"] = quote(_pass)
         connect_string_args["host"] = quote(db_config.get("host"))
 
-        connection_string = ("{dialect}://{username}:{password}@{host}:{port}/").format(
-            **connect_string_args
+        connection_string = (
+            "{dialect}://{username}:{password}@{host}:{port}/".format(
+                **connect_string_args
+            )
         )
 
         connection_string += db_name if db_name else db_config.get("database", "")
@@ -317,7 +320,7 @@ def get_session(
     )
 
     connection_string = __get_connection_string(
-        config_path, provider=provider, db_name=db_name
+        config_path, provider=provider, db_name=db_name,
     )
     engine = sqlalchemy.create_engine(
         connection_string, paramstyle="format", **engine_args
