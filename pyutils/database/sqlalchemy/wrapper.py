@@ -64,7 +64,7 @@ class DBWrapper:
     def _schema(self) -> str:
         with self._config_provider.provide(
             self._config_secret_route
-        ).unlock() as config:
+        ).unlock().secret as config:
             return config.get("schema")
 
     @property
