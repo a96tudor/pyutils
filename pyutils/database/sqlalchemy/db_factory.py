@@ -253,6 +253,7 @@ def __get_connection_string(
         # XXX: CRITICAL: Escape special characters otherwise connection will fail
         _pass = connect_string_args["password"]
         connect_string_args["password"] = quote(_pass)
+        connect_string_args["host"] = quote(db_config.get("host"))
 
         connection_string = ("{dialect}://{username}:{password}@{host}:{port}/").format(
             **connect_string_args
