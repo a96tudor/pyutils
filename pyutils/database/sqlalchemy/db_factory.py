@@ -248,6 +248,7 @@ def __get_connection_string(
             k: v for k, v in db_config.items() if k not in ["dialect", "driver"]
         }
         connect_string_args["dialect"] = dialect_arg
+        connect_string_args["username"] = db_config.get("username")
 
         # XXX: CRITICAL: Escape special characters otherwise connection will fail
         _pass = connect_string_args["password"]
