@@ -5,7 +5,7 @@ from enum import Enum
 from typing import Any, Callable, List, Optional, Type, Union
 
 from psycopg2 import OperationalError
-from sqlalchemy.orm import Column, Model
+from sqlalchemy import Column, DeclarativeBase
 from sqlalchemy.orm.query import Query
 from sqlalchemy.orm.session import Session
 
@@ -82,7 +82,7 @@ class DBWrapper:
         return_func: Callable,
         query: Query,
         retry_on_error: Optional[Type[Exception]] = None,
-    ) -> Union[Model, List[Model]]:
+    ) -> Union[DeclarativeBase, List[DeclarativeBase]]:
         if retry_on_error:
             try:
                 return return_func(query)
@@ -128,7 +128,7 @@ class DBWrapper:
             raise SqlAlchemyError(message)
 
     def _initiate_query(
-        self, session: Session, model_class: Model, columns: [Column]
+        self, session: Session, model_class: DeclarativeBase, columns: [Column]
     ) -> Query:
         if len(columns) > 0:
             query = session.query()
@@ -141,7 +141,7 @@ class DBWrapper:
 
     def _get_with_filters(
         self,
-        model_class: Model,
+        model_class: DeclarativeBase,
         filters: List[Filter],
         columns: Optional[List[Column]] = None,
         joins: Optional[List[Join]] = None,
@@ -150,7 +150,7 @@ class DBWrapper:
         at_least_one_filter: Optional[bool] = False,
         limit: Optional[int] = None,
         return_type: Optional[GetResultType] = GetResultType.FIRST,
-    ) -> Union[Query, Model, List[Model]]:
+    ) -> Union[Query, DeclarativeBase, List[DeclarativeBase]]:
         processed_parameters = self._process_get_with_filters_parameters(
             model_class,
             filters,
@@ -187,7 +187,7 @@ class DBWrapper:
 
     def _process_get_with_filters_parameters(
         self,
-        model_class: Model,
+        model_class: DeclarativeBase,
         filters: List[Filter],
         at_least_one_filter: bool,
         columns: Optional[List[Column]] = None,
@@ -243,16 +243,20 @@ class DBWrapper:
         # TODO: Add check for direction as well, to be valid
         return getattr(field, direction)
 
-    def _create_and_upsert_model(self, model_class: Model, **kwargs) -> Model:
+    def _create_and_upsert_model(
+        self, model_class: DeclarativeBase, **kwargs
+    ) -> DeclarativeBase:
         model = model_class(**kwargs)
         return self._upsert_model(model)
 
-    def _upsert_model(self, model: Model, error_message: Optional[str] = None) -> Model:
+    def _upsert_model(
+        self, model: DeclarativeBase, error_message: Optional[str] = None
+    ) -> DeclarativeBase:
         return self._upsert_models([model], error_message)[0]
 
     def _upsert_models(
-        self, models: [Model], error_message: Optional[str] = None
-    ) -> [Model]:
+        self, models: [DeclarativeBase], error_message: Optional[str] = None
+    ) -> [DeclarativeBase]:
         if error_message is None or error_message == "":
             error_message = f"Error upserting {models}"
         with self.safe_session_scope(error_message) as session:
@@ -264,20 +268,20 @@ class DBWrapper:
         return result
 
     def _create_models(
-        self, models: [Model], error_message: Optional[str] = None
-    ) -> [Model]:
+        self, models: [DeclarativeBase], error_message: Optional[str] = None
+    ) -> [DeclarativeBase]:
         """Create multiple models in one session.
 
         Parameters
         ----------
-        models: list[Model]
+        models: list[DeclarativeBase]
             List of model instances to create.
         error_message: str, optional
             Custom error message used when the creation fails.
 
         Returns
         -------
-        list[Model]
+        list[DeclarativeBase]
             The created models.
         """
 
@@ -288,12 +292,14 @@ class DBWrapper:
 
         return models
 
-    def _delete_model(self, model: Model, error_message: Optional[str] = None) -> int:
+    def _delete_model(
+        self, model: DeclarativeBase, error_message: Optional[str] = None
+    ) -> int:
         """Delete a single model from the session.
 
         Parameters
         ----------
-        model: Model
+        model: DeclarativeBase
             The model instance to delete.
         error_message: str, optional
             Custom error message used when the delete fails.
@@ -307,13 +313,13 @@ class DBWrapper:
         return self._delete_models([model], error_message)
 
     def _delete_models(
-        self, models: [Model], error_message: Optional[str] = None
+        self, models: [DeclarativeBase], error_message: Optional[str] = None
     ) -> int:
         """Delete multiple models in one session.
 
         Parameters
         ----------
-        models: list[Model]
+        models: list[DeclarativeBase]
             List of model instances to delete.
         error_message: str, optional
             Custom error message used when the delete fails.
@@ -336,7 +342,7 @@ class DBWrapper:
 
 
 class DBWrapperWithSubQueries(DBWrapper, ABC):
-    def _get_attributes_filters(self, model: Model, attributes: [Attribute]):
+    def _get_attributes_filters(self, model: DeclarativeBase, attributes: [Attribute]):
         tuple_filter = TupleInFilter(
             (model.name, model.value), [(attr.name, attr.value) for attr in attributes]
         )
@@ -352,7 +358,7 @@ class DBWrapperWithSubQueries(DBWrapper, ABC):
     def _get_attributes_group_by_subquery(
         self,
         session: Session,
-        model: Model,
+        model: DeclarativeBase,
         column: Column,
         attributes: [Attribute],
     ) -> Query:
@@ -367,11 +373,11 @@ class DBWrapperWithSubQueries(DBWrapper, ABC):
 
     def _get_with_filters_and_attributes(
         self,
-        model_class: Model,
+        model_class: DeclarativeBase,
         subquery_column: Column,
         attributes: [Attribute],
         filters: List[Filter],
-        subquery_model: Optional[Model] = None,
+        subquery_model: Optional[DeclarativeBase] = None,
         columns: Optional[List[Column]] = None,
         joins_before_subquery: Optional[List[Join]] = None,
         joins: Optional[List[Join]] = None,
