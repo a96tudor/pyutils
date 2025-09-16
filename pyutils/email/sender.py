@@ -46,15 +46,18 @@ class EmailSender:
         msg["From"] = unlocked_secret.secret["from_email_address"]
 
         # Send the message
-        with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.ehlo()
+            server.starttls()
+            server.ehlo()
             server.login(smtp_user, smtp_password)
             server.send_message(msg)
 
     def __send_with_retries(self, msg: MIMEMultipart) -> None:
         with self.__email_config_secret.unlock() as secret:
             attempts = 0
-            number_of_retries = secret.secret.get("number_of_retries", 3)
-            retry_delay = secret.secret.get("retry_delay", 5)
+            number_of_retries = int(secret.secret.get("number_of_retries", 3))
+            retry_delay = int(secret.secret.get("retry_delay", 5))
             while attempts < number_of_retries:
                 try:
                     self.__send_configured_message(secret, msg)
@@ -87,4 +90,4 @@ class EmailSender:
             msg.attach(MIMEText(body, "plain"))
 
         self.__add_attachments(msg, attachments)
-        self.__send_with_retries()
+        self.__send_with_retries(msg)
