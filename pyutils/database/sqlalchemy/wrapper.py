@@ -125,7 +125,7 @@ class DBWrapper:
 
     @contextmanager
     def safe_session_scope(
-        self, message: Optional[str] = None, expire_on_commit: bool = True
+        self, message: Optional[str] = None, expire_on_commit: bool = False
     ) -> Session:
         try:
             with self.session_scope(expire_on_commit) as session:
