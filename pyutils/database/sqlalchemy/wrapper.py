@@ -105,7 +105,7 @@ class DBWrapper:
             return return_func(query)
 
     @contextmanager
-    def session_scope(self, expire_on_commit: bool = True) -> Session:
+    def session_scope(self, expire_on_commit: bool = False) -> Session:
         session = get_session(
             self.logger,
             self._config_secret_route,
