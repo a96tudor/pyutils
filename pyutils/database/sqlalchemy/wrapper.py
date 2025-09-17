@@ -172,7 +172,7 @@ class DBWrapper:
         )
         filters, columns, joins, order_by, error_message = processed_parameters
 
-        with self.safe_session_scope(error_message) as session:
+        with self.safe_session_scope(error_message, expire_on_commit=False) as session:
             query = self._initiate_query(session, model_class, columns)
             query = self._complete_query(query, joins, filters, order_by, limit)
             result = self._run_query_safe(
@@ -269,7 +269,7 @@ class DBWrapper:
     ) -> [DeclarativeBase]:
         if error_message is None or error_message == "":
             error_message = f"Error upserting {models}"
-        with self.safe_session_scope(error_message) as session:
+        with self.safe_session_scope(error_message, expire_on_commit=False) as session:
             # TODO: Take a look at using session.add()
             result = []
             for model in models:
@@ -297,7 +297,7 @@ class DBWrapper:
 
         if error_message is None or error_message == "":
             error_message = f"Error creating {models}"
-        with self.safe_session_scope(error_message) as session:
+        with self.safe_session_scope(error_message, expire_on_commit=False) as session:
             session.add_all(models)
 
         return models
@@ -396,7 +396,7 @@ class DBWrapperWithSubQueries(DBWrapper, ABC):
         at_least_one_filter: Optional[bool] = False,
         limit: Optional[int] = None,
         return_type: Optional[DBWrapper.GetResultType] = None,
-        expire_on_commit: Optional[bool] = True,
+        expire_on_commit: Optional[bool] = False,
     ):
         processed_parameters = self._process_get_with_filters_parameters(
             model_class,
