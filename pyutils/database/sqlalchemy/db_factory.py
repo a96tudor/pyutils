@@ -66,6 +66,7 @@ def DBFactory(logger_: Logger):
             db_name: str = None,
             engine_args: Optional[dict] = None,
             session_args: Optional[dict] = None,
+            expire_on_commit: bool = False,
         ):
             try:
                 cls.session = get_session(
@@ -75,6 +76,7 @@ def DBFactory(logger_: Logger):
                     db_name=db_name,
                     engine_args=engine_args,
                     session_args=session_args,
+                    expire_on_commit=expire_on_commit,
                 )
                 cls.engine = cls.session.bind
             except Exception as err:
@@ -88,11 +90,13 @@ def DBFactory(logger_: Logger):
             ident_db_session = ""
             ident_db_config = ""
             ident_db_name = ""
+            expire_on_teardown = False
             try:
                 ident_info = cls.session.info or {}
                 ident_db_session = ident_info.get("ident_db_session") or ""
                 ident_db_config = ident_info.get("ident_db_config") or ""
                 ident_db_name = ident_info.get("ident_db_name") or ""
+                expire_on_teardown = bool(ident_info.get("expire_on_teardown") or False)
             except Exception:
                 pass
 
@@ -105,11 +109,12 @@ def DBFactory(logger_: Logger):
                 # Roll back this session, so we can Reconnect to the DB
                 cls.session.rollback()
 
-            # Expire all objects in this session is being torndown
-            try:
-                cls.session.expire_all()
-            except Exception:
-                pass
+            # Optionally expire all objects when the session is being torn down
+            if expire_on_teardown:
+                try:
+                    cls.session.expire_all()
+                except Exception:
+                    pass
 
             # Attempt to close the session since its being torndown
             try:
@@ -278,6 +283,7 @@ def get_session(
     db_name: str = None,
     engine_args: Optional[dict] = None,
     session_args: Optional[dict] = None,
+    expire_on_commit: Optional[bool] = False,
 ) -> ScopedSession:
     if engine_args is None:
         engine_args = {}
@@ -288,7 +294,7 @@ def get_session(
         # Default List
         "autoflush": False,
         "autocommit": False,
-        "expire_on_commit": True,
+        "expire_on_commit": expire_on_commit,
         "query_cls": RetryingBaseQuery,  # Uncomment to use DB Query retry method
         "info": {},  # arbitrary data to be associated with this Session Obj
     }

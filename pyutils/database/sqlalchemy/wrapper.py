@@ -46,28 +46,9 @@ class DBWrapper:
         return datetime.now(timezone.utc)
 
     @property
-    def db_name(self) -> str:
-        with self._config_provider.provide(
-            self._config_secret_route
-        ).unlock() as config:
-            return config.secret.get("database")
-
-    @property
     @abstractmethod
     def session_manager(self) -> SessionManager:
         raise NotImplementedError()
-
-    @property
-    @abstractmethod
-    def _config_secret_route(self) -> [str]:
-        raise NotImplementedError
-
-    @property
-    def _schema(self) -> str:
-        with self._config_provider.provide(
-            self._config_secret_route
-        ).unlock() as config:
-            return config.secret.get("schema")
 
     @property
     @abstractmethod
@@ -99,13 +80,30 @@ class DBWrapper:
 
         if session is None:
             raise SqlAlchemyError("Failed to establish a database connection.")
+        # Remember current expire_on_commit setting to restore later
+        original_expire_on_commit = getattr(session, "expire_on_commit", False)
         try:
+            # Control teardown expiration via session.info so factory can honor it
+            info = getattr(session, "info", {}) or {}
+            info["expire_on_teardown"] = bool(expire_on_commit)
+            session.info.update(info)
+            # Control per-scope SQLAlchemy commit expiration behavior
+            try:
+                session.expire_on_commit = bool(expire_on_commit)
+            except Exception:
+                # Attribute might be read-only on some session implementations
+                pass
             yield session
             session.commit()
         except Exception:
             session.rollback()
             raise
         finally:
+            # Restore original expire_on_commit behavior for this session
+            try:
+                session.expire_on_commit = original_expire_on_commit
+            except Exception:
+                pass
             self.session_manager.teardown_session()
 
     @contextmanager
