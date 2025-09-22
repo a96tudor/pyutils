@@ -180,7 +180,7 @@ def DBFactory(logger_: Logger):
     return DB
 
 
-class _SessionManager:
+class SessionManager:
     def __init__(self, *session_args, **session_kwargs):
         super().__init__()
         self.factory = DBFactory()
@@ -329,13 +329,13 @@ def get_session(
     return session
 
 
-def get_session_manager(session_name: str) -> _SessionManager:
-    session_manager = _SessionManager(identifier=session_name)
+def get_session_manager(session_name: str) -> SessionManager:
+    session_manager = SessionManager(identifier=session_name)
 
     return session_manager
 
 
-def shutdown_engine(sess_mgr_obj: _SessionManager, exc):
+def shutdown_engine(sess_mgr_obj: SessionManager, exc):
     # Teardown old session
     teardown_session(sess_mgr_obj, exc)
 
@@ -352,7 +352,7 @@ def shutdown_engine(sess_mgr_obj: _SessionManager, exc):
         )
 
 
-def teardown_session(sess_mgr_obj: _SessionManager, exc):
+def teardown_session(sess_mgr_obj: SessionManager, exc):
     try:
         # Things should have already been committed before closing the connection
         # If no transaction is in progress, this method is a pass-through.

@@ -11,7 +11,7 @@ from sqlalchemy.orm.query import Query
 from sqlalchemy.orm.session import Session
 
 from pyutils.config.providers import ConfigProvider
-from pyutils.database.sqlalchemy.db_factory import _SessionManager
+from pyutils.database.sqlalchemy.db_factory import SessionManager
 from pyutils.database.sqlalchemy.errors import SqlAlchemyError
 from pyutils.database.sqlalchemy.filters import CountFilter, Filter, TupleInFilter
 from pyutils.database.sqlalchemy.joins import Join
@@ -54,7 +54,7 @@ class DBWrapper:
 
     @property
     @abstractmethod
-    def session_manager(self) -> _SessionManager:
+    def session_manager(self) -> SessionManager:
         raise NotImplementedError()
 
     @property
