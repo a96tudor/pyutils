@@ -11,7 +11,7 @@ from sqlalchemy.orm.query import Query
 from sqlalchemy.orm.session import Session
 
 from pyutils.config.providers import ConfigProvider
-from pyutils.database.sqlalchemy.db_factory import DBFactory, get_session
+from pyutils.database.sqlalchemy.db_factory import _SessionManager
 from pyutils.database.sqlalchemy.errors import SqlAlchemyError
 from pyutils.database.sqlalchemy.filters import CountFilter, Filter, TupleInFilter
 from pyutils.database.sqlalchemy.joins import Join
@@ -54,12 +54,7 @@ class DBWrapper:
 
     @property
     @abstractmethod
-    def _expire_db_factory(self) -> DBFactory:
-        raise NotImplementedError()
-
-    @property
-    @abstractmethod
-    def _no_expire_db_factory(self) -> DBFactory:
+    def session_manager(self) -> _SessionManager:
         raise NotImplementedError()
 
     @property
@@ -78,12 +73,6 @@ class DBWrapper:
     @abstractmethod
     def _config_provider(self) -> ConfigProvider:
         raise NotImplementedError()
-
-    def _get_db_factory(self, expire_on_commit: bool) -> DBFactory:
-        if expire_on_commit:
-            return self._expire_db_factory
-
-        return self._no_expire_db_factory
 
     def _run_query_safe(
         self,
@@ -106,14 +95,8 @@ class DBWrapper:
 
     @contextmanager
     def session_scope(self, expire_on_commit: bool = False) -> Session:
-        session = get_session(
-            self.logger,
-            self._config_secret_route,
-            self._config_provider,
-            db_name=self.db_name,
-            session_args={"expire_on_commit": expire_on_commit},
-            # schema=self._schema,
-        )
+        session = self.session_manager.session
+
         if session is None:
             raise SqlAlchemyError("Failed to establish a database connection.")
         try:
@@ -122,6 +105,8 @@ class DBWrapper:
         except Exception:
             session.rollback()
             raise
+        finally:
+            self.session_manager.teardown_session()
 
     @contextmanager
     def safe_session_scope(
@@ -131,7 +116,6 @@ class DBWrapper:
             with self.session_scope(expire_on_commit) as session:
                 yield session
         except Exception as e:
-
             self.logger.error(e, exc_info=True)
             # Use the beppy error rather than specific DB errors to prevent leaking
             # DB specifics to users
