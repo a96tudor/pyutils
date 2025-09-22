@@ -181,9 +181,9 @@ def DBFactory(logger_: Logger):
 
 
 class SessionManager:
-    def __init__(self, *session_args, **session_kwargs):
+    def __init__(self, logger: Logger, *session_args, **session_kwargs):
         super().__init__()
-        self.factory = DBFactory()
+        self.factory = DBFactory(logger)
         self._session_args = session_args
         self._session_kwargs = session_kwargs
 
