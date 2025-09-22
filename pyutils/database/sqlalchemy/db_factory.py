@@ -180,7 +180,6 @@ def DBFactory(logger_: Logger):
     return DB
 
 
-@singleton
 class _SessionManager:
     def __init__(self, *session_args, **session_kwargs):
         super().__init__()
