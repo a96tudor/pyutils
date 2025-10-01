@@ -75,7 +75,10 @@ class DBWrapper:
             return return_func(query)
 
     @contextmanager
-    def session_scope(self, expire_on_commit: bool = False) -> Session:
+    def session_scope(
+        self, expire_on_commit: bool = False,
+        teardown_on_exit: bool = False,
+    ) -> Session:
         session = self.session_manager.session
 
         if session is None:
@@ -104,7 +107,8 @@ class DBWrapper:
                 session.expire_on_commit = original_expire_on_commit
             except Exception:
                 pass
-            self.session_manager.teardown_session()
+            if teardown_on_exit:
+                self.session_manager.teardown_session()
 
     @contextmanager
     def safe_session_scope(
