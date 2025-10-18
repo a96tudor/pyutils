@@ -76,7 +76,8 @@ class DBWrapper:
 
     @contextmanager
     def session_scope(
-        self, expire_on_commit: bool = False,
+        self,
+        expire_on_commit: bool = False,
         teardown_on_exit: bool = False,
     ) -> Session:
         session = self.session_manager.session

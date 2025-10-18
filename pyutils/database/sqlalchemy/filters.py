@@ -83,6 +83,35 @@ class LessThanFilter(ComparisonFilter):
             return self.column <= self.value
 
 
+class InBetweenFilter(Filter):
+    def __init__(self, column: Column, lower_value: Any, upper_value: Any):
+        super().__init__(column, (lower_value, upper_value))
+        self.lower_value = lower_value
+        self.upper_value = upper_value
+
+    def process(self):
+        return self.column.between(self.lower_value, self.upper_value)
+
+    def should_use(self) -> bool:
+        return self.lower_value is not None and self.upper_value is not None
+
+
+class ValueBetweenColumnsFilter(Filter):
+    def __init__(self, value: Any, lower_column: Column, upper_column: Column):
+        super().__init__(value, (lower_column, upper_column))
+        self.lower_column = lower_column
+        self.upper_column = upper_column
+
+    def process(self):
+        return and_(
+            self.column >= self.lower_column,
+            self.column <= self.upper_column,
+        )
+
+    def should_use(self) -> bool:
+        return True
+
+
 class CountFilter(Filter):
     def __init__(self, column: Column, value: int):
         super().__init__(column, value)
