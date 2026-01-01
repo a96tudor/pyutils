@@ -1,9 +1,11 @@
 import importlib.util
 from json import JSONEncoder as _JSONEncoder
 from pathlib import Path
+from typing import Callable
 
 from ariadne.explorer import ExplorerPlayground
 from flask import Flask, Response, jsonify, request
+from flask_limiter import Limiter
 
 from pyutils.api.server.graphql.general import generate_response, validate_request
 from pyutils.config.providers import YAMLConfigProvider
@@ -58,7 +60,12 @@ def attach_graphql_playground_route(app: Flask, environment: str, api_version: s
     return graphql_playground
 
 
-def attach_graphql_server_route(app, graphql_schema, auth_decorator=None, **kwargs):
+def attach_graphql_server_route(
+    app, graphql_schema, auth_decorator=None,
+    limiter: Limiter = None,
+    limiter_func: Callable = None,
+    **kwargs
+):
     """
     Given a Flask app and an executable Ariadne GraphQL schema, attaches a route that
     does the following upon a POST request:
@@ -86,6 +93,12 @@ def attach_graphql_server_route(app, graphql_schema, auth_decorator=None, **kwar
     # Apply authentication decorator if provided
     if auth_decorator:
         graphql_server = auth_decorator(graphql_server)
+    else:
+        graphql_server = graphql_server
+
+    # Apply rate limiter if provided
+    if limiter and limiter_func:
+        graphql_server = limiter.limit(limiter_func)(graphql_server)
     else:
         graphql_server = graphql_server
 
