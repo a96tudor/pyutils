@@ -6,12 +6,13 @@ from urllib.parse import urlencode, urljoin
 import requests
 
 from pyutils.api.client.authentication import Authenticator
+from pyutils.api.client.base_client import BaseAPIClient
 from pyutils.api.client.rest.errors import RESTClientError
 from pyutils.config.providers import ConfigProvider
 from pyutils.logging.logger import Logger
 
 
-class RESTClient(abc.ABC):
+class RESTClient(BaseAPIClient, abc.ABC):
     def __init__(
         self,
         config_provider: ConfigProvider,
@@ -22,21 +23,14 @@ class RESTClient(abc.ABC):
         user_agent: Optional[str] = None,
         logger: Optional[Logger] = None,
     ):
-        self.api_name = api_name
-        self.config_provider = config_provider
-        self.config_key = config_key
-        if authenticator_type:
-            self._authenticator = authenticator_type.from_config_provider(
-                api_name=api_name,
-                config_provider=config_provider,
-                config_key=config_key,
-                logger=logger,
-            )
-        else:
-            self._authenticator = None
+        super().__init__(
+            config_provider,
+            config_key,
+            api_name,
+            authenticator_type=authenticator_type,
+            logger=logger,
+        )
         self.user_agent = user_agent
-        self._base_url = None
-        self._logger = logger
 
     @property
     def base_url(self) -> str:
