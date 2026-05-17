@@ -1,6 +1,6 @@
 import inspect
 import json
-from typing import Any, List, Optional, Union, cast
+from typing import Any, List, Optional, Set, Union, cast
 
 from ariadne import (
     MutationType,
@@ -29,7 +29,7 @@ from pyutils.helpers.general import current_utc_rfc3339
 def load_graphql_schema(path: str):
     provider = YAMLConfigProvider(path)
     schema_location = provider.provide(["schema_location"], secret=False)
-    return load_schema_from_path(schema_location[0])
+    return load_schema_from_path(schema_location[0])  # type: ignore[index]
 
 
 schema = load_graphql_schema
@@ -43,7 +43,7 @@ bindables = {query, mutation}
 # If you need to add a new middleware, you should define the function
 # and then register that middleware by register_middlewares([middleware])
 # Critical: Order matters
-middlewares = set([])
+middlewares: Set[Any] = set()
 
 
 def register_bindables(new_bindables: Union[list, set]):
@@ -76,6 +76,8 @@ def validate_request(request: Any) -> Optional[dict]:
     variables = data.get("variables")
     if variables and not isinstance(variables, dict):
         return BadRequestError("'variables' key must be a dict.").extension_details
+
+    return None
 
 
 class Context:
@@ -177,7 +179,7 @@ def error_formatter(error_obj: GraphQLError, debug: bool = False) -> dict:
     first_err = error_obj.original_error
     if not first_err:
         # GraphQLError
-        original_exc = BadArgumentsError(message=error_obj.message)
+        original_exc: Any = BadArgumentsError(message=error_obj.message)
     else:
         # If first original_error is GraphQLError
         # second original error is actual error
@@ -238,7 +240,7 @@ def error_formatter(error_obj: GraphQLError, debug: bool = False) -> dict:
 
 def fields_from_selections(
     info: GraphQLResolveInfo, selections: List[SelectionNode]
-) -> List[dict]:
+) -> List[Union[str, dict]]:
     """Return a list of dicts with fields and their selections.
 
     E.g. getProductInstances with selection fields such as:
@@ -262,9 +264,9 @@ def fields_from_selections(
         ]
     }]
     """
-    field_selections: List[dict] = []
+    field_selections: List[Union[str, dict]] = []
     for selection in selections:
-        name = ""
+        name: Union[str, dict] = ""
         if hasattr(selection, "selection_set") and getattr(
             selection, "selection_set", None
         ):
@@ -276,7 +278,7 @@ def fields_from_selections(
                 _selections = getattr(selection.selection_set, "selections", None) or []
                 selection = fields_from_selections(info, _selections)
                 if selection:
-                    name["selections"].extend(selection)
+                    cast(dict, name)["selections"].extend(selection)
             else:
                 name = selection.name.value
         elif isinstance(selection, InlineFragmentNode):
@@ -286,7 +288,7 @@ def fields_from_selections(
                 _selections = getattr(selection.selection_set, "selections", None) or []
                 selection = fields_from_selections(info, _selections)
                 if selection:
-                    name["selections"].extend(selection)
+                    cast(dict, name)["selections"].extend(selection)
         elif isinstance(selection, FragmentSpreadNode):
             name = {"name": selection.name.value, "selections": []}
             fragment = info.fragments[selection.name.value]
@@ -297,9 +299,9 @@ def fields_from_selections(
     return field_selections
 
 
-def get_selected_fields(info: GraphQLResolveInfo) -> List[dict]:
+def get_selected_fields(info: GraphQLResolveInfo) -> List[Union[str, dict]]:
     """Return a dict of selected fields and their subfields."""
-    names: List[str] = []
+    names: List[Union[str, dict]] = []
     for node in info.field_nodes:
         if node.selection_set is None:
             continue

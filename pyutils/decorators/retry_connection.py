@@ -1,6 +1,6 @@
 import time
 from functools import wraps
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, Union
 
 from pyutils.decorators.utils import get_jitter_delay_value
 
@@ -36,7 +36,7 @@ def retry_connection(
         def wrapper(*args, **kwargs) -> Any:
             _att = 0
             for _att in range(1, retry_count + 1):
-                retry_delay = delay
+                retry_delay: Union[int, float] = delay
                 jitter_set = False
                 if add_retry_jitter:
                     jitter_set = True

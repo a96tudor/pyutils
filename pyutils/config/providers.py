@@ -13,12 +13,12 @@ class ConfigProvider(abc.ABC):
 
     def __init__(self, base_config_path: Optional[List[str]] = None):
         self.__value: Optional[SecretValues] = None
-        self.__base_config_path = base_config_path
+        self._base_config_path = base_config_path
 
     @abc.abstractmethod
     def provide(
         self, config_path: List[str], secret: Optional[bool] = True
-    ) -> Optional[SecretValues]:
+    ) -> Union[SecretValues, dict, None]:
         raise NotImplementedError("Subclasses must implement this method.")
 
 
@@ -42,9 +42,7 @@ class FileConfigProvider(ConfigProvider):
             with open(self.config_filename) as config_file:
                 self.loaded_config = self.file_loader(config_file)
 
-        # Declared here because pyre type checks doesn't detect the 'if' test below
-        # Access attribute from ConfigProvider; avoid name mangling issues
-        base_path = self._ConfigProvider__base_config_path
+        base_path = self._base_config_path
         if base_path:
             config_value = get_in(self.loaded_config, base_path + config_path)
         else:

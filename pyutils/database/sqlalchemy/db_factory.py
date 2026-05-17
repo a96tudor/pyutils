@@ -1,7 +1,7 @@
 import time
 import urllib.parse
 import uuid
-from typing import Any, Optional, Union
+from typing import Any, Dict, Optional, Union
 from urllib.parse import quote
 
 import sqlalchemy
@@ -62,7 +62,7 @@ def DBFactory(logger_: Logger):  # noqa: N802
             cls,
             config_path: list,
             provider: ConfigProvider,
-            db_name: str = None,
+            db_name: Optional[str] = None,
             engine_args: Optional[dict] = None,
             session_args: Optional[dict] = None,
             expire_on_commit: bool = False,
@@ -236,9 +236,9 @@ class SessionManager:
 
 
 def __get_connection_string(
-    config_path: list, provider: ConfigProvider, db_name: str = None
+    config_path: list, provider: ConfigProvider, db_name: Optional[str] = None
 ) -> Optional[str]:
-    config: SecretValues = provider.provide(config_path)
+    config: SecretValues = provider.provide(config_path)  # type: ignore[assignment]
     connection_string = None
     with config.unlock() as db_config:
         db_config = db_config.secret
@@ -278,8 +278,8 @@ def __get_connection_string(
 def get_session(
     logger: Logger,
     config_path: list,
-    provider: ConfigProvider = None,
-    db_name: str = None,
+    provider: Optional[ConfigProvider] = None,
+    db_name: Optional[str] = None,
     engine_args: Optional[dict] = None,
     session_args: Optional[dict] = None,
     expire_on_commit: Optional[bool] = False,
@@ -289,7 +289,7 @@ def get_session(
     if session_args is None:
         session_args = {}
 
-    _session_args = {
+    _session_args: Dict[str, Any] = {
         # Default List
         "autoflush": False,
         "autocommit": False,
@@ -321,6 +321,7 @@ def get_session(
         }
     )
 
+    assert provider is not None
     connection_string = __get_connection_string(
         config_path,
         provider=provider,
@@ -335,7 +336,7 @@ def get_session(
 
 
 def get_session_manager(session_name: str) -> SessionManager:
-    session_manager = SessionManager(identifier=session_name)
+    session_manager = SessionManager(identifier=session_name)  # type: ignore[call-arg]
 
     return session_manager
 

@@ -3,7 +3,7 @@ import json
 from typing import Callable, List, Optional, Union
 from urllib.parse import urlencode, urljoin
 
-import requests
+import requests  # type: ignore[import-untyped]
 
 from pyutils.api.client.authentication import Authenticator
 from pyutils.api.client.base_client import BaseAPIClient
@@ -36,16 +36,16 @@ class RESTClient(BaseAPIClient, abc.ABC):
     def base_url(self) -> str:
         if self._base_url is None:
             config_values = self.config_provider.provide(self.config_key)
-            with config_values.unlock():
-                scheme = config_values["scheme"]
-                host = config_values["host"]
-                base_path = config_values["base_path"]
+            with config_values.unlock():  # type: ignore[union-attr]
+                scheme = config_values["scheme"]  # type: ignore[index]
+                host = config_values["host"]  # type: ignore[index]
+                base_path = config_values["base_path"]  # type: ignore[index]
 
             self._base_url = urljoin(f"{scheme}://{host}", base_path)
 
         return self._base_url
 
-    def _get_headers(self, data: Optional[dict] = None) -> dict:
+    def _get_headers(self, data: Optional[Union[dict, list]] = None) -> dict:
         headers = {}
 
         if self._authenticator:
@@ -75,7 +75,7 @@ class RESTClient(BaseAPIClient, abc.ABC):
         self,
         path: str,
         func: Callable,
-        data: Optional[dict] = None,
+        data: Optional[Union[dict, list]] = None,
         url_filters: Optional[dict] = None,
     ) -> dict:
         raw_result = None

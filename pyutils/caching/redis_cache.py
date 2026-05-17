@@ -1,6 +1,6 @@
 from typing import Any, List, Optional
 
-import redis
+import redis  # type: ignore[import-untyped]
 
 from pyutils.caching.base import AbstractCacheProvider
 from pyutils.config.providers import ConfigProvider
@@ -58,9 +58,13 @@ class PooledRedis(AbstractCacheProvider):
         if not secrets_config_key:
             secrets_config_key = ["elasticache", "redis"]
 
-        self.config = config_provider.provide(secrets_config_key, secret=False)
-        self.cache_url = self.config.get("cache_url", "127.0.0.1")
-        self.cache_port = self.config.get("cache_port", "6379")
+        self.config = config_provider.provide(secrets_config_key, secret=False) or {}
+        self.cache_url = self.config.get(  # type: ignore[union-attr]
+            "cache_url", "127.0.0.1"
+        )
+        self.cache_port = self.config.get(  # type: ignore[union-attr]
+            "cache_port", "6379"
+        )
         self.encoding = encoding or "utf-8"
         self.decode_responses = (
             decode_responses if isinstance(decode_responses, bool) else True
@@ -83,7 +87,9 @@ class PooledRedis(AbstractCacheProvider):
         if self.CACHE_STORE is not None and self.use_global_cache is not True:
             # Close all unused connections
             try:
-                self.CACHE_STORE.connection_pool.disconnect(inuse_connections=False)
+                self.CACHE_STORE.connection_pool.disconnect(  # type: ignore[union-attr]
+                    inuse_connections=False
+                )
             except Exception:
                 pass
 
@@ -95,7 +101,9 @@ class PooledRedis(AbstractCacheProvider):
         if reinit is True and self.use_global_cache is not True:
             # Close all connections
             try:
-                self.CACHE_STORE.connection_pool.disconnect(inuse_connections=True)
+                self.CACHE_STORE.connection_pool.disconnect(  # type: ignore[union-attr]
+                    inuse_connections=True
+                )
             except Exception:
                 pass
 
@@ -141,7 +149,9 @@ class PooledRedis(AbstractCacheProvider):
                 time_to_live = DEFAULT_TIME_TO_LIVE
 
         try:
-            resp = self.CACHE_STORE.set(cache_key, cache_value, ex=time_to_live)
+            resp = self.CACHE_STORE.set(  # type: ignore[union-attr]
+                cache_key, cache_value, ex=time_to_live
+            )
             return resp
         except Exception as ex:
             self.logger.error(
@@ -159,7 +169,7 @@ class PooledRedis(AbstractCacheProvider):
                   if the key does not exist in the cache
         """
         try:
-            value = self.CACHE_STORE.get(cache_key)
+            value = self.CACHE_STORE.get(cache_key)  # type: ignore[union-attr]
             if self.decode_responses:
                 return value
             elif value:
@@ -179,7 +189,7 @@ class PooledRedis(AbstractCacheProvider):
         :returns: None
         """
         try:
-            resp = self.CACHE_STORE.delete(cache_key)
+            resp = self.CACHE_STORE.delete(cache_key)  # type: ignore[union-attr]
             return resp
         except Exception as ex:
             self.logger.error(
@@ -196,7 +206,7 @@ class PooledRedis(AbstractCacheProvider):
         :returns: None
         """
         try:
-            resp = self.CACHE_STORE.incr(cache_key, count)
+            resp = self.CACHE_STORE.incr(cache_key, count)  # type: ignore[union-attr]
             return resp
         except Exception as ex:
             self.logger.error(
@@ -213,7 +223,7 @@ class PooledRedis(AbstractCacheProvider):
         :returns: None
         """
         try:
-            resp = self.CACHE_STORE.decr(cache_key, count)
+            resp = self.CACHE_STORE.decr(cache_key, count)  # type: ignore[union-attr]
             return resp
         except Exception as ex:
             self.logger.error(

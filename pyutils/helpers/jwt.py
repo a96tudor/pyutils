@@ -1,5 +1,4 @@
 import datetime
-from typing import Optional
 
 import jwt
 
@@ -7,7 +6,7 @@ import jwt
 def get_jwt_token(
     payload: dict,
     key: str,
-    ttl: Optional[datetime.timedelta] = datetime.timedelta(hours=1),
+    ttl: datetime.timedelta = datetime.timedelta(hours=1),
 ) -> str:
     payload["exp"] = (datetime.datetime.now(datetime.timezone.utc) + ttl).timestamp()
     return jwt.encode(payload, key=key, algorithm="HS256")

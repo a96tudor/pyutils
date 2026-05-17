@@ -1,12 +1,12 @@
 import random
-from typing import Union
+from typing import Optional, Union
 
 
 def get_jitter_delay_value(
     attempt: int,
-    base: int = 4,
-    min_delay: int = 2,
-    max_delay: int = 12,
+    base: Optional[int] = 4,
+    min_delay: Optional[int] = 2,
+    max_delay: Optional[int] = 12,
     return_int: bool = False,
     return_float_precision: int = 4,
 ) -> Union[int, float]:

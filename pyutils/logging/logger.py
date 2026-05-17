@@ -2,7 +2,7 @@ import json
 import re
 from logging import INFO, Formatter, Handler
 from logging import Logger as Logger_
-from typing import Iterable, List, Optional, Union
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Union
 
 from pyutils.decorators.singleton import singleton
 from pyutils.helpers.execution_info import get_execution_id
@@ -17,7 +17,7 @@ class Logger(Logger_):
         name: str,
         formatter: Formatter,
         handler: Handler,
-        level: Optional[Union[int, str]] = INFO,
+        level: Union[int, str] = INFO,
         pii_keys: Optional[Iterable[str]] = None,
         *args,
         **kwargs,
@@ -68,13 +68,29 @@ class Logger(Logger_):
 
         return cleaned_text
 
-    def _log(self, level: int, msg: str, *args, **kwargs) -> None:
+    def _log(  # type: ignore[override]
+        self,
+        level: int,
+        msg: object,
+        args: Any,
+        exc_info: Any = None,
+        extra: Optional[Mapping[str, object]] = None,
+        stack_info: bool = False,
+        stacklevel: int = 1,
+    ) -> None:
         """Override the _log method to ensure the message is formatted correctly."""
-        msg = self.__scrub_json_in_text(msg)
-        extra = kwargs.pop("extra", {}) or {}
+        if isinstance(msg, str):
+            msg = self.__scrub_json_in_text(msg)
+        extra_dict: Dict[str, object] = dict(extra) if extra else {}
         execution_id = get_execution_id()
-        if execution_id is not None and "execution_id" not in extra:
-            extra["execution_id"] = execution_id
-        kwargs["extra"] = extra
-
-        super()._log(level, msg, *args, **kwargs)
+        if execution_id is not None and "execution_id" not in extra_dict:
+            extra_dict["execution_id"] = execution_id
+        super()._log(
+            level,
+            msg,
+            args,
+            exc_info=exc_info,
+            extra=extra_dict,
+            stack_info=stack_info,
+            stacklevel=stacklevel,
+        )

@@ -5,15 +5,17 @@ See beppy/helpers/cache for example implementations
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any, ClassVar, Optional
 
 
 class AbstractCacheProvider(ABC):
+    CACHE: ClassVar[Optional[Any]] = None
+
     def __init_subclass__(cls) -> None:
         super().__init_subclass__()
         # Creates a class level CACHE variable that can be shared amongst
         #  class instances whenever this abstract class gets subclassed
-        cls.CACHE: Optional[Any] = None
+        cls.CACHE = None
 
     @abstractmethod
     def put_key(

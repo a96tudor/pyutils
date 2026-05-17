@@ -32,7 +32,8 @@ class MongoDbError(DatabaseError):
             An error message describing the error.
 
         """
-        super().__init__(
+        kwargs.pop("engine", None)
+        super().__init__(  # type: ignore[misc]
             f"{message} when connected to database {database_name}, "
             f"collection {collection_name}",
             engine="MongoDB",

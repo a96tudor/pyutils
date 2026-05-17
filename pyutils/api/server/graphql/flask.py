@@ -1,7 +1,7 @@
 import importlib.util
 from json import JSONEncoder as _JSONEncoder
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Optional
 
 from ariadne.explorer import ExplorerPlayground
 from flask import Flask, Response, jsonify, request
@@ -60,8 +60,8 @@ def attach_graphql_server_route(
     app,
     graphql_schema,
     auth_decorator=None,
-    limiter: Limiter = None,
-    limiter_func: Callable = None,
+    limiter: Optional[Limiter] = None,
+    limiter_func: Optional[Callable] = None,
     **kwargs,
 ):
     """Attach a POST route to a Flask app for serving GraphQL queries.
@@ -121,8 +121,10 @@ def load_module_from_filename(filename: str):
     # "/directory/module.py" -> "module"
     module_name = str(filename).split("/")[-1].rstrip(".py")
     spec = importlib.util.spec_from_file_location(module_name, filename)
+    if spec is None or spec.loader is None:
+        return
     module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    spec.loader.exec_module(module)  # type: ignore[union-attr]
 
 
 def load_modules_in_directory(directory):
@@ -141,9 +143,9 @@ def load_resolvers_and_mutations(graphql_config_location: str):
     provider = YAMLConfigProvider(graphql_config_location)
     resolver_locations = provider.provide(["resolver_locations"], secret=False)
     mutation_locations = provider.provide(["mutation_locations"], secret=False)
-    for directory in resolver_locations or []:
+    for directory in resolver_locations or []:  # type: ignore[union-attr]
         load_modules_in_directory(directory)
-    for directory in mutation_locations or []:
+    for directory in mutation_locations or []:  # type: ignore[union-attr]
         load_modules_in_directory(directory)
 
 

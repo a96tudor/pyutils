@@ -13,7 +13,10 @@ class SqlAlchemyError(DatabaseError):
     }
 
     def __init__(self, message: str, *args, **kwargs):
-        super().__init__(message, engine="SQLAlchemy", *args, **kwargs)
+        kwargs.pop("engine", None)
+        super().__init__(  # type: ignore[misc]
+            message, engine="SQLAlchemy", *args, **kwargs
+        )
 
 
 class SqlAlchemyConnectionError(SqlAlchemyError):
@@ -32,7 +35,9 @@ class SqlAlchemyConnectionError(SqlAlchemyError):
         *args,
         **kwargs,
     ):
-        super().__init__(f"{message}: {error}" if error else message, *args, **kwargs)
+        super().__init__(
+            f"{message}: {error}" if error else message or "", *args, **kwargs
+        )
 
 
 class SQLAlchemySessionError(SqlAlchemyError):
@@ -51,4 +56,6 @@ class SQLAlchemySessionError(SqlAlchemyError):
         *args,
         **kwargs,
     ):
-        super().__init__(f"{message}: {error}" if error else message, *args, **kwargs)
+        super().__init__(
+            f"{message}: {error}" if error else message or "", *args, **kwargs
+        )

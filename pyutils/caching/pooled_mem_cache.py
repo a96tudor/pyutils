@@ -70,9 +70,13 @@ class PooledMemcached(AbstractCacheProvider):
         if not secrets_config_key:
             secrets_config_key = ["elasticache", "memcached"]
 
-        self.config = config_provider.provide(secrets_config_key, secret=False)
-        self.cache_url = self.config.get("cache_url", "127.0.0.1")
-        self.cache_port = self.config.get("cache_port", "11211")
+        self.config = config_provider.provide(secrets_config_key, secret=False) or {}
+        self.cache_url = self.config.get(  # type: ignore[union-attr]
+            "cache_url", "127.0.0.1"
+        )
+        self.cache_port = self.config.get(  # type: ignore[union-attr]
+            "cache_port", "11211"
+        )
         self.encoding = encoding or "utf-8"
         self.decode_responses = (
             decode_responses if isinstance(decode_responses, bool) else True
@@ -114,7 +118,7 @@ class PooledMemcached(AbstractCacheProvider):
         if reinit is True and self.use_global_cache is not True:
             # Close all connections
             try:
-                self.CACHE_STORE.quit()
+                self.CACHE_STORE.quit()  # type: ignore[union-attr]
             except Exception:
                 pass
 
@@ -157,7 +161,7 @@ class PooledMemcached(AbstractCacheProvider):
                 time_to_live = DEFAULT_TIME_TO_LIVE
 
         try:
-            resp = self.CACHE_STORE.set(
+            resp = self.CACHE_STORE.set(  # type: ignore[union-attr]
                 key=cache_key, value=cache_value, expire=time_to_live, noreply=True
             )
             return resp
@@ -182,7 +186,7 @@ class PooledMemcached(AbstractCacheProvider):
                   if the key does not exist in the cache
         """
         try:
-            resp = self.CACHE_STORE.get(cache_key)
+            resp = self.CACHE_STORE.get(cache_key)  # type: ignore[union-attr]
             if resp and self.decode_responses and isinstance(resp, bytes):
                 try:
                     return resp.decode(self.encoding)
@@ -209,7 +213,9 @@ class PooledMemcached(AbstractCacheProvider):
         :returns: None
         """
         try:
-            resp = self.CACHE_STORE.delete(cache_key, noreply=True)
+            resp = self.CACHE_STORE.delete(  # type: ignore[union-attr]
+                cache_key, noreply=True
+            )
             return resp
         except ConnectionResetError:
             self.logger.warning(
@@ -231,7 +237,9 @@ class PooledMemcached(AbstractCacheProvider):
         :returns: None
         """
         try:
-            resp = self.CACHE_STORE.incr(cache_key, count, noreply=False)
+            resp = self.CACHE_STORE.incr(  # type: ignore[union-attr]
+                cache_key, count, noreply=False
+            )
             return resp
         except ConnectionResetError:
             self.logger.warning(
@@ -253,7 +261,9 @@ class PooledMemcached(AbstractCacheProvider):
         :returns: None
         """
         try:
-            resp = self.CACHE_STORE.decr(cache_key, count, noreply=False)
+            resp = self.CACHE_STORE.decr(  # type: ignore[union-attr]
+                cache_key, count, noreply=False
+            )
             return resp
         except ConnectionResetError:
             self.logger.warning(

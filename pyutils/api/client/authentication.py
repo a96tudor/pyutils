@@ -2,7 +2,7 @@ import abc
 from datetime import datetime, timedelta
 from typing import List, Optional
 
-import requests
+import requests  # type: ignore[import-untyped]
 
 from pyutils.api.client.errors import AuthenticationError
 from pyutils.config.providers import ConfigProvider
@@ -19,9 +19,9 @@ class Authenticator(abc.ABC):
     ) -> None:
         self.api_name = api_name
         self._config = config
-        self._token = None
-        self._expiration_date = None
-        self._logger = logger if logger is not None else Logger()
+        self._token: Optional[str] = None
+        self._expiration_date: Optional[datetime] = None
+        self._logger: Optional[Logger] = logger
 
     def _is_valid(self) -> bool:
         return (
@@ -36,7 +36,7 @@ class Authenticator(abc.ABC):
     def token(self) -> str:
         if not self._is_valid():
             self._token = self._generate_token()
-        return self._token
+        return self._token or ""
 
     @classmethod
     @abc.abstractmethod
@@ -69,7 +69,9 @@ class OAuthAuthenticator(Authenticator):
     ) -> None:
         super().__init__(api_name, config, logger)
         self._grant_type = grant_type if grant_type else "client_credentials"
-        self._config_values: SecretValues = self._config.provide(
+        assert self._config is not None
+        self._config_values: SecretValues
+        self._config_values = self._config.provide(  # type: ignore[assignment]
             config_keys, secret=True
         )
 
@@ -80,7 +82,7 @@ class OAuthAuthenticator(Authenticator):
             "grant_type": self._config_values,
         }
 
-        if "scope" in self._config.secret:
+        if "scope" in self._config_values.secret:
             token_req_body["scope"] = self._config_values.secret["scope"]
 
         return token_req_body
@@ -90,11 +92,12 @@ class OAuthAuthenticator(Authenticator):
             raise AuthenticationError(self.api_name)
 
         if raw_response.status_code != 200:
-            self._logger.error(
-                f"Failed to authenticate with OAuth to {self.api_name}. "
-                f"Expected code 200, got {raw_response.status_code}. "
-                f"Full response: {raw_response}."
-            )
+            if self._logger:
+                self._logger.error(
+                    f"Failed to authenticate with OAuth to {self.api_name}. "
+                    f"Expected code 200, got {raw_response.status_code}. "
+                    f"Full response: {raw_response}."
+                )
 
         decoded_response = raw_response.json()
         ttl = decoded_response["expires_in"]
@@ -112,11 +115,12 @@ class OAuthAuthenticator(Authenticator):
                     url, data=req_body, headers=self._TOKEN_REQUEST_HEADERS
                 )
         except Exception as e:
-            self._logger.error(e)
+            if self._logger:
+                self._logger.error(e)
             raise AuthenticationError(self.api_name)
 
         self.__process_raw_token_response(raw_response)
-        return self._token
+        return self._token or ""
 
     @classmethod
     def from_config_provider(
@@ -148,8 +152,9 @@ class APIKeyAuthenticator(Authenticator):
         logger: Optional[Logger] = None,
     ):
         super().__init__(api_name, config, logger)
-
-        self._config_values: SecretValues = self._config.provide(
+        assert self._config is not None
+        self._config_values: SecretValues
+        self._config_values = self._config.provide(  # type: ignore[assignment]
             config_key, secret=True
         )
 
@@ -160,7 +165,7 @@ class APIKeyAuthenticator(Authenticator):
 
         self._expiration_date = datetime.now() + timedelta(seconds=expires_in)
 
-        return self._token
+        return self._token or ""
 
     @classmethod
     def from_config_provider(

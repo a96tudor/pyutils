@@ -1,5 +1,5 @@
 from logging import INFO, Formatter, Handler
-from typing import Optional, Union
+from typing import Union
 
 from .logger import Logger
 
@@ -8,8 +8,7 @@ def get_logger(
     name: str,
     formatter: Formatter,
     handler: Handler,
-    level: Optional[Union[int, str]] = INFO,
-    *args,
+    level: Union[int, str] = INFO,
     **kwargs,
 ):
     return Logger(
@@ -17,6 +16,5 @@ def get_logger(
         formatter=formatter,
         handler=handler,
         level=level,
-        *args,
         **kwargs,
     )

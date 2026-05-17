@@ -1,6 +1,6 @@
 from logging import Handler
 
-import requests
+import requests  # type: ignore[import-untyped]
 
 
 class CommandLineHandler(Handler):

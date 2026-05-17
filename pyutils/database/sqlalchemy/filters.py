@@ -39,7 +39,7 @@ class InListFilter(EqualityFilter):
         values: List[Any],
         is_uuid: Optional[bool] = False,
         negated: Optional[bool] = False,
-        can_be_empty: Optional[bool] = False,
+        can_be_empty: bool = False,
     ):
         super().__init__(column, values, is_uuid)
         if not isinstance(values, Iterable):
@@ -139,7 +139,9 @@ class TupleInFilter(InListFilter):
 
 
 class BooleanFilter(Filter):
-    def __init__(self, column: Column, value: bool, negated: Optional[bool] = False):
+    def __init__(
+        self, column: Column, value: Optional[bool], negated: Optional[bool] = False
+    ):
         super().__init__(column, value)
         self.negated = negated
 

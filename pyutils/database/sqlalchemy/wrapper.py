@@ -124,10 +124,10 @@ class DBWrapper:
             self.logger.error(e, exc_info=True)
             # Use the beppy error rather than specific DB errors to prevent leaking
             # DB specifics to users
-            raise SqlAlchemyError(message)
+            raise SqlAlchemyError(message or "Unknown error")
 
     def _initiate_query(
-        self, session: Session, model_class: DeclarativeBase, columns: [Column]
+        self, session: Session, model_class: DeclarativeBase, columns: List[Column]
     ) -> Query:
         if len(columns) > 0:
             query = session.query()
@@ -148,7 +148,7 @@ class DBWrapper:
         error_message: Optional[str] = None,
         at_least_one_filter: Optional[bool] = False,
         limit: Optional[int] = None,
-        return_type: Optional[GetResultType] = GetResultType.FIRST,
+        return_type: "DBWrapper.GetResultType" = GetResultType.FIRST,
     ) -> Union[Query, DeclarativeBase, List[DeclarativeBase]]:
         processed_parameters = self._process_get_with_filters_parameters(
             model_class,
@@ -160,6 +160,8 @@ class DBWrapper:
             order_by,
         )
         filters, columns, joins, order_by, error_message = processed_parameters
+        assert columns is not None
+        assert joins is not None
 
         with self.safe_session_scope(error_message, expire_on_commit=False) as session:
             query = self._initiate_query(session, model_class, columns)
@@ -171,7 +173,12 @@ class DBWrapper:
         return result
 
     def _complete_query(
-        self, query: Query, joins: List[Join], filters: list, order_by: Any, limit: int
+        self,
+        query: Query,
+        joins: List[Join],
+        filters: list,
+        order_by: Any,
+        limit: Optional[int],
     ) -> Query:
         for join in joins:
             query = join.apply_to_query(query)
@@ -188,7 +195,7 @@ class DBWrapper:
         self,
         model_class: DeclarativeBase,
         filters: List[Filter],
-        at_least_one_filter: bool,
+        at_least_one_filter: Optional[bool],
         columns: Optional[List[Column]] = None,
         joins: Optional[List[Join]] = None,
         error_message: Optional[str] = None,
@@ -254,8 +261,8 @@ class DBWrapper:
         return self._upsert_models([model], error_message)[0]
 
     def _upsert_models(
-        self, models: [DeclarativeBase], error_message: Optional[str] = None
-    ) -> [DeclarativeBase]:
+        self, models: List[DeclarativeBase], error_message: Optional[str] = None
+    ) -> List[DeclarativeBase]:
         if error_message is None or error_message == "":
             error_message = f"Error upserting {models}"
         with self.safe_session_scope(error_message, expire_on_commit=False) as session:
@@ -267,8 +274,8 @@ class DBWrapper:
         return result
 
     def _create_models(
-        self, models: [DeclarativeBase], error_message: Optional[str] = None
-    ) -> [DeclarativeBase]:
+        self, models: List[DeclarativeBase], error_message: Optional[str] = None
+    ) -> List[DeclarativeBase]:
         """Create multiple models in one session.
 
         Parameters
@@ -312,7 +319,7 @@ class DBWrapper:
         return self._delete_models([model], error_message)
 
     def _delete_models(
-        self, models: [DeclarativeBase], error_message: Optional[str] = None
+        self, models: List[DeclarativeBase], error_message: Optional[str] = None
     ) -> int:
         """Delete multiple models in one session.
 
@@ -341,7 +348,9 @@ class DBWrapper:
 
 
 class DBWrapperWithSubQueries(DBWrapper, ABC):
-    def _get_attributes_filters(self, model: DeclarativeBase, attributes: [Attribute]):
+    def _get_attributes_filters(
+        self, model: DeclarativeBase, attributes: List[Attribute]
+    ):
         tuple_filter = TupleInFilter(
             (model.name, model.value), [(attr.name, attr.value) for attr in attributes]
         )
@@ -359,7 +368,7 @@ class DBWrapperWithSubQueries(DBWrapper, ABC):
         session: Session,
         model: DeclarativeBase,
         column: Column,
-        attributes: [Attribute],
+        attributes: List[Attribute],
     ) -> Query:
         tuple_filter, count_filter = self._get_attributes_filters(model, attributes)
         return (
@@ -374,7 +383,7 @@ class DBWrapperWithSubQueries(DBWrapper, ABC):
         self,
         model_class: DeclarativeBase,
         subquery_column: Column,
-        attributes: [Attribute],
+        attributes: List[Attribute],
         filters: List[Filter],
         subquery_model: Optional[DeclarativeBase] = None,
         columns: Optional[List[Column]] = None,
@@ -385,7 +394,7 @@ class DBWrapperWithSubQueries(DBWrapper, ABC):
         at_least_one_filter: Optional[bool] = False,
         limit: Optional[int] = None,
         return_type: Optional[DBWrapper.GetResultType] = None,
-        expire_on_commit: Optional[bool] = False,
+        expire_on_commit: bool = False,
     ):
         processed_parameters = self._process_get_with_filters_parameters(
             model_class,
@@ -397,6 +406,8 @@ class DBWrapperWithSubQueries(DBWrapper, ABC):
             order_by,
         )
         filters, columns, joins, order_by, error_message = processed_parameters
+        assert columns is not None
+        assert joins is not None
         if joins_before_subquery is None:
             joins_before_subquery = []
         if subquery_model is None:

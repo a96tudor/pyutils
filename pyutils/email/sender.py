@@ -21,10 +21,10 @@ class EmailSender:
         config = self.provider.provide(["email"])
         if config is None:
             raise ValueError("Email configuration not found.")
-        return config
+        return config  # type: ignore[return-value]
 
     def __add_attachments(
-        self, msg: MIMEMultipart, attachments: List[Attachment]
+        self, msg: MIMEMultipart, attachments: Optional[List[Attachment]]
     ) -> None:
         if attachments is None:
             return

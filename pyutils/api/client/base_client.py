@@ -19,6 +19,7 @@ class BaseAPIClient(abc.ABC):
         self.api_name = api_name
         self.config_provider = config_provider
         self.config_key = config_key
+        self._authenticator: Optional[Authenticator]
         if authenticator_type:
             self._authenticator = authenticator_type.from_config_provider(
                 api_name=api_name,
@@ -28,5 +29,5 @@ class BaseAPIClient(abc.ABC):
             )
         else:
             self._authenticator = None
-        self._base_url = None
+        self._base_url: Optional[str] = None
         self._logger = logger
