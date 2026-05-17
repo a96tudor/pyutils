@@ -61,10 +61,12 @@ def attach_graphql_playground_route(app: Flask, environment: str, api_version: s
 
 
 def attach_graphql_server_route(
-    app, graphql_schema, auth_decorator=None,
+    app,
+    graphql_schema,
+    auth_decorator=None,
     limiter: Limiter = None,
     limiter_func: Callable = None,
-    **kwargs
+    **kwargs,
 ):
     """
     Given a Flask app and an executable Ariadne GraphQL schema, attaches a route that

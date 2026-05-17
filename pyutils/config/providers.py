@@ -16,7 +16,9 @@ class ConfigProvider(abc.ABC):
         self.__base_config_path = base_config_path
 
     @abc.abstractmethod
-    def provide(self, config_path: List[str]) -> Optional[SecretValues]:
+    def provide(
+        self, config_path: List[str], secret: Optional[bool] = True
+    ) -> Optional[SecretValues]:
         raise NotImplementedError("Subclasses must implement this method.")
 
 
