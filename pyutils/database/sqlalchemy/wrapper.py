@@ -25,6 +25,8 @@ class DBWrapper:
         self.logger = logger
 
     class GetResultType(Enum):
+        """Result type options for database get operations."""
+
         ALL = "ALL"
         ONE = "ONE"
         ONE_OR_NONE = "ONE_OR_NONE"
@@ -280,8 +282,8 @@ class DBWrapper:
         -------
         list[DeclarativeBase]
             The created models.
-        """
 
+        """
         if error_message is None or error_message == "":
             error_message = f"Error creating {models}"
         with self.safe_session_scope(error_message, expire_on_commit=False) as session:
@@ -305,8 +307,8 @@ class DBWrapper:
         -------
         int
             Number of deleted models. Always ``1`` if no exception is raised.
-        """
 
+        """
         return self._delete_models([model], error_message)
 
     def _delete_models(
@@ -325,8 +327,8 @@ class DBWrapper:
         -------
         int
             Number of deleted models.
-        """
 
+        """
         if error_message is None or error_message == "":
             error_message = f"Error deleting {models}"
         with self.safe_session_scope(error_message) as session:

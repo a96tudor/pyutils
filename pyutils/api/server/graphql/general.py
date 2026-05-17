@@ -55,10 +55,7 @@ def register_middlewares(new_middlewares: Union[list, set]):
 
 
 def validate_request(request: Any) -> Optional[dict]:
-    """
-    Validate GraphQL Request, if malformed returns an error dict
-    """
-
+    """Validate GraphQL request; if malformed, returns an error dict."""
     data = None
 
     try:
@@ -120,14 +117,14 @@ def generate_response(graphql_schema: Any, request: Any, **kwargs):
         *inspect.getfullargspec(graphql_sync).kwonlyargs,
     ]
 
-    MiddlewareManagerClass = MiddlewareManager
+    middleware_manager_cls = MiddlewareManager
     _middlewares = list(middlewares)
     if "middleware_manager_class" in graphql_sync_params:
         # Ariadne  >= 0.18.0
-        kwargs["middleware_manager_class"] = MiddlewareManagerClass
+        kwargs["middleware_manager_class"] = middleware_manager_cls
         kwargs["middleware"] = _middlewares
     else:
-        kwargs["middleware"] = MiddlewareManagerClass(*_middlewares)
+        kwargs["middleware"] = middleware_manager_cls(*_middlewares)
 
     # Note: Passing the request to the context is option. In Flask, the current
     # request is always accessible as flask.request.
@@ -143,9 +140,9 @@ def generate_response(graphql_schema: Any, request: Any, **kwargs):
 
 
 def is_field_requested(requested_fields: List[dict], field_name: str) -> bool:
-    """
-    Given a field name, will determine if a field is requested in the query
-    Supports fragments and nested fields
+    """Determine if a field is requested in the query.
+
+    Supports fragments and nested fields.
     """
     for field in requested_fields:
         if isinstance(field, str):
@@ -229,10 +226,10 @@ def error_formatter(error_obj: GraphQLError, debug: bool = False) -> dict:
 
         # XXX: 'locations' key needs to be overriden with custom output
         try:
-            errorLocations = [
+            error_locations = [
                 {"line": line, "column": column} for line, column in error_obj.locations
             ]
-            formatted_err["locations"] = errorLocations
+            formatted_err["locations"] = error_locations
         except Exception:
             pass
 
@@ -242,9 +239,9 @@ def error_formatter(error_obj: GraphQLError, debug: bool = False) -> dict:
 def fields_from_selections(
     info: GraphQLResolveInfo, selections: List[SelectionNode]
 ) -> List[dict]:
-    """
-    Returns a list of dict with the fields and their selections
-    e.g getProductInstances with selection fields such as:
+    """Return a list of dicts with fields and their selections.
+
+    E.g. getProductInstances with selection fields such as:
 
     getProductInstances(input: $getInput) {
       productInstances {
@@ -265,7 +262,6 @@ def fields_from_selections(
         ]
     }]
     """
-
     field_selections: List[dict] = []
     for selection in selections:
         name = ""
@@ -302,9 +298,7 @@ def fields_from_selections(
 
 
 def get_selected_fields(info: GraphQLResolveInfo) -> List[dict]:
-    """
-    Returns a dict of selected fields and their subfields
-    """
+    """Return a dict of selected fields and their subfields."""
     names: List[str] = []
     for node in info.field_nodes:
         if node.selection_set is None:

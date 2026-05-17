@@ -1,6 +1,4 @@
-import pytest
-
-from pyutils.helpers.errors import BadArgumentsError, Error
+from pyutils.helpers.errors import BadArgumentsError
 
 
 def test_error_repr_and_extension_details():

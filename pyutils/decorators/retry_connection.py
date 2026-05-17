@@ -13,8 +13,8 @@ def retry_connection(
     max_retry_jitter: Optional[int] = None,
     add_retry_jitter_exc: Optional[list] = None,
 ) -> Callable:
-    """
-    A wrapper that will automatically retry API requests in the case of an exception.
+    """Wrap a function to automatically retry on exception.
+
     The function using this wrapper must raise given exception for this to work.
 
     Parameters:
@@ -27,8 +27,8 @@ def retry_connection(
 
     Returns:
     Same output as original function, or exception.
-    """
 
+    """
     add_retry_jitter_exc = add_retry_jitter_exc or []
 
     def decorator(func: Callable) -> Callable:

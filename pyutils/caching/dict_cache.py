@@ -4,9 +4,7 @@ from pyutils.caching.base import AbstractCacheProvider
 
 
 class DictCache(AbstractCacheProvider):
-    """
-    Provides a basic cache in the form of a dictionary
-    """
+    """Provide a basic cache in the form of a dictionary."""
 
     def __init__(self) -> None:
         super().__init__()

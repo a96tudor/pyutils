@@ -10,9 +10,9 @@ DEFAULT_TIME_TO_LIVE = 300
 
 
 class StrSerde:
-    """
-    Serializes and deserializes strings only since
-    redis client defaults to byte strings
+    """Serialize and deserialize strings only.
+
+    The redis client defaults to byte strings.
     """
 
     def serialize(self, _, value: str):
@@ -25,9 +25,7 @@ class StrSerde:
 
 
 class PooledRedis(AbstractCacheProvider):
-    """
-    A redis client to store key/values as a caching mechanism
-    """
+    """A redis client to store key/values as a caching mechanism."""
 
     GLOBAL_CACHE_STORE: Optional[redis.Redis] = None
 
@@ -46,7 +44,8 @@ class PooledRedis(AbstractCacheProvider):
         **kwargs,
     ) -> None:
         """
-        Initializes the redis client using a pooled connection.
+        Initialize the redis client using a pooled connection.
+
         Defaults to a maximum pool size of 2
 
         Specify the secrets config path if it is different than the default
@@ -127,7 +126,7 @@ class PooledRedis(AbstractCacheProvider):
         self, cache_key: str, cache_value: str, time_to_live: int = DEFAULT_TIME_TO_LIVE
     ) -> Optional[Any]:
         """
-        Sets a key in the cache store with the specified TTL
+        Set a key in the cache store with the specified TTL.
 
         :param cache_key: The cache key to store
         :param cache_value: The value to store with the key
@@ -153,7 +152,7 @@ class PooledRedis(AbstractCacheProvider):
 
     def get_key(self, cache_key: str) -> Optional[str]:
         """
-        Gets the specified key from the cache store
+        Get the specified key from the cache store.
 
         :param cache_key: The cache key to find
         :returns: The value of the given cache key or None
@@ -174,7 +173,7 @@ class PooledRedis(AbstractCacheProvider):
 
     def delete_key(self, cache_key: str) -> Optional[Any]:
         """
-        Deletes the specified key from the cache store
+        Delete the specified key from the cache store.
 
         :param cache_key: The cache key to delete
         :returns: None
@@ -191,7 +190,7 @@ class PooledRedis(AbstractCacheProvider):
 
     def increment(self, cache_key: str, count: int) -> Optional[Any]:
         """
-        Increments the specified key from the cache store
+        Increment the specified key in the cache store.
 
         :param cache_key: The cache key to increment
         :returns: None
@@ -208,7 +207,7 @@ class PooledRedis(AbstractCacheProvider):
 
     def decrement(self, cache_key: str, count: int) -> Optional[Any]:
         """
-        Decrements the specified key from the cache store
+        Decrement the specified key in the cache store.
 
         :param cache_key: The cache key to decrement
         :returns: None

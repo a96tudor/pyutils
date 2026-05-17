@@ -31,9 +31,7 @@ class Logger(Logger_):
         self.__pii_keys = pii_keys if pii_keys else []
 
     def __find_json_patterns_in_message(self, msg: str) -> List[str]:
-        """
-        Find and return JSON strings in the message.
-        """
+        """Find and return JSON strings in the message."""
         return self.__JSON_IN_STRING_REGEX.findall(msg)
 
     def __scrub_pii(self, obj):
@@ -71,9 +69,7 @@ class Logger(Logger_):
         return cleaned_text
 
     def _log(self, level: int, msg: str, *args, **kwargs) -> None:
-        """
-        Override the _log method to ensure the message is formatted correctly.
-        """
+        """Override the _log method to ensure the message is formatted correctly."""
         msg = self.__scrub_json_in_text(msg)
         extra = kwargs.pop("extra", {}) or {}
         execution_id = get_execution_id()

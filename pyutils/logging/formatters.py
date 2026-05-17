@@ -5,9 +5,7 @@ from datetime import datetime, timezone
 
 
 class JSONLogFormatter(logging.Formatter):
-    """
-    A log formatter that formats log records as JSON strings.
-    """
+    """A log formatter that formats log records as JSON strings."""
 
     def format(self, record):
         log = {

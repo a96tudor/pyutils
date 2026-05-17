@@ -1,5 +1,5 @@
 """
-Provides an interface for implementing a cache store for any purpose
+Provides an interface for implementing a cache store for any purpose.
 
 See beppy/helpers/cache for example implementations
 """
@@ -19,22 +19,18 @@ class AbstractCacheProvider(ABC):
     def put_key(
         self, cache_key: str, cache_value: Any, time_to_live: int = 0
     ) -> Optional[bool]:
-        """
-        Given a cache key and value, store the key/value pair in the cache
-        If the cache implementation supports a time_to_live value, then use it
+        """Given a cache key and value, store the key/value pair in the cache.
+
+        If the cache implementation supports a time_to_live value, then use it.
         """
         ...
 
     @abstractmethod
     def get_key(self, cache_key: str) -> Optional[Any]:
-        """
-        Retrieves a value from the cache store using the given key
-        """
+        """Retrieve a value from the cache store using the given key."""
         ...
 
     @abstractmethod
     def delete_key(self, cache_key: str) -> Optional[bool]:
-        """
-        Deletes the given key from the cache store
-        """
+        """Delete the given key from the cache store."""
         ...

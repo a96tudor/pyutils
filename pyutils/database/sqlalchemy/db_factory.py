@@ -19,13 +19,12 @@ from pyutils.database.sqlalchemy.errors import (
 )
 from pyutils.database.sqlalchemy.query import RetryingBaseQuery
 from pyutils.decorators.retry_connection import retry_connection
-from pyutils.decorators.singleton import singleton
 from pyutils.logging.logger import Logger
 
 
-def DBFactory(logger_: Logger):
+def DBFactory(logger_: Logger):  # noqa: N802
     class DB:
-        """intended to be replacement for Flask-SQLAlchemy's db (SQLAlchemy())"""
+        """Intended to be replacement for Flask-SQLAlchemy's db (SQLAlchemy())."""
 
         Model = declarative_base()
         metadata = Model.metadata
@@ -208,7 +207,7 @@ class SessionManager:
         return self.factory.session
 
     def update_session_args(self, *session_args, **session_kwargs):
-        """Updates session args on the next time session is created"""
+        """Update session args on the next time session is created."""
         self._session_args = session_args
         self._session_kwargs = session_kwargs
 

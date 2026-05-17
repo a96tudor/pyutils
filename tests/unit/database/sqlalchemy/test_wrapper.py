@@ -3,8 +3,6 @@ import types
 from contextlib import contextmanager
 from unittest.mock import call
 
-import pytest
-
 # Stub external dependencies required by DBWrapper
 dummy_module = types.ModuleType("database_factory")
 dummy_module.DB = types.SimpleNamespace(Model=object, Column=object)
@@ -16,7 +14,7 @@ dummy_rds_module = types.ModuleType("rds")
 dummy_rds_module.DBFactory = object
 sys.modules["beppy.helpers.db.rds"] = dummy_rds_module
 
-from pyutils.database.sqlalchemy.wrapper import DBWrapper
+from pyutils.database.sqlalchemy.wrapper import DBWrapper  # noqa: E402
 
 
 def _context_manager(session):

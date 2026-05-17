@@ -2,8 +2,6 @@ import json
 import logging
 import sys
 
-import pytest
-
 from pyutils.logging.formatters import JSONLogFormatter
 from pyutils.logging.handlers import BetterStackHandler, CommandLineHandler
 

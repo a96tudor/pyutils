@@ -7,10 +7,10 @@ from pyutils.database.sqlalchemy.constants import KNOWN_DB_ERRORS
 
 
 class RetryingBaseQuery(OrmQuery):
-    """
-    Adapted from:
-        https://stackoverflow.com/questions/53287215/
-        retry-failed-sqlalchemy-queries/60614707#60614707
+    """Adapted from the StackOverflow answer on retrying failed SQLAlchemy queries.
+
+    https://stackoverflow.com/questions/53287215/
+    retry-failed-sqlalchemy-queries/60614707#60614707
     """
 
     __MAX_RETRIES__ = 3
@@ -35,13 +35,6 @@ class RetryingBaseQuery(OrmQuery):
         attempts = 0
         max_attempts = self.__MAX_RETRIES__
 
-        # DB Session object identifier
-        _db_sess_info = {}
-        try:
-            if isinstance(self.session.info, dict):
-                _db_sess_info = self.session.info
-        except Exception:
-            pass
         for attempts in range(1, max_attempts + 1):
             try:
                 return iter_func()

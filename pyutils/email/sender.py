@@ -3,7 +3,7 @@ import time
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from socket import error as SocketError
+from socket import error as SocketError  # noqa: N812
 from typing import List, Optional
 
 from pyutils.config.providers import ConfigProvider, SecretValues

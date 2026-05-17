@@ -1,5 +1,5 @@
 class ClassProperty:
-    """Allows a property to be accessed like a classmethod"""
+    """Allow a property to be accessed like a classmethod."""
 
     def __init__(self, fget):
         self.fget = fget

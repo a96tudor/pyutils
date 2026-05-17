@@ -10,9 +10,7 @@ class CommandLineHandler(Handler):
         self.formatter = None
 
     def emit(self, record):
-        """
-        Emit a record.
-        """
+        """Emit a record."""
         if self.formatter:
             record.msg = self.formatter.format(record)
         print(record.msg)

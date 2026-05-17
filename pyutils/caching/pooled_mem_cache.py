@@ -10,9 +10,9 @@ DEFAULT_TIME_TO_LIVE = 300
 
 
 class StrSerde:
-    """
-    Serializes and deserializes strings only since
-    memcached client defaults to byte strings
+    """Serialize and deserialize strings only.
+
+    The memcached client defaults to byte strings.
     """
 
     def serialize(self, _, value: str):
@@ -25,9 +25,7 @@ class StrSerde:
 
 
 class PooledMemcached(AbstractCacheProvider):
-    """
-    A memcached client to store key/values as a caching mechanism
-    """
+    """A memcached client to store key/values as a caching mechanism."""
 
     GLOBAL_CACHE_STORE: Optional[PooledClient] = None
 
@@ -48,7 +46,8 @@ class PooledMemcached(AbstractCacheProvider):
         **kwargs,
     ) -> None:
         """
-        Initializes the memcached client using a pooled connection.
+        Initialize the memcached client using a pooled connection.
+
         Defaults to a maximum pool size of 2
 
         The pool idle time is set to 60 seconds default.
@@ -143,7 +142,7 @@ class PooledMemcached(AbstractCacheProvider):
         self, cache_key: str, cache_value: str, time_to_live: int = DEFAULT_TIME_TO_LIVE
     ) -> Optional[Any]:
         """
-        Sets a key in the cache store with the specified TTL
+        Set a key in the cache store with the specified TTL.
 
         :param cache_key: The cache key to store
         :param cache_value: The value to store with the key
@@ -176,7 +175,7 @@ class PooledMemcached(AbstractCacheProvider):
 
     def get_key(self, cache_key: str) -> Optional[str]:
         """
-        Gets the specified key from the cache store
+        Get the specified key from the cache store.
 
         :param cache_key: The cache key to find
         :returns: The value of the given cache key or None
@@ -204,7 +203,7 @@ class PooledMemcached(AbstractCacheProvider):
 
     def delete_key(self, cache_key: str) -> Optional[Any]:
         """
-        Deletes the specified key from the cache store
+        Delete the specified key from the cache store.
 
         :param cache_key: The cache key to delete
         :returns: None
@@ -226,7 +225,7 @@ class PooledMemcached(AbstractCacheProvider):
 
     def increment(self, cache_key: str, count: int) -> Optional[Any]:
         """
-        Increments the specified key from the cache store
+        Increment the specified key in the cache store.
 
         :param cache_key: The cache key to Increment
         :returns: None
@@ -248,7 +247,7 @@ class PooledMemcached(AbstractCacheProvider):
 
     def decrement(self, cache_key: str, count: int) -> Optional[Any]:
         """
-        Decrements the specified key from the cache store
+        Decrement the specified key in the cache store.
 
         :param cache_key: The cache key to decrement
         :returns: None

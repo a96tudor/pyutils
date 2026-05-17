@@ -20,9 +20,7 @@ def update_headers(resp: Response, headers: dict):
 
 
 def add_headers(resp: Response, api_version: str) -> Response:
-    """
-    Add response headers.
-    """
+    """Add response headers."""
     no_cache_headers = {
         "Cache-Control": "max-age=0, must-revalidate, no-cache, no-store, public",
         "Pragma": "no-cache",
@@ -38,9 +36,7 @@ def add_headers(resp: Response, api_version: str) -> Response:
 
 
 def attach_graphql_playground_route(app: Flask, environment: str, api_version: str):
-    """
-    Given a Flask app, attaches a route that serves a GraphQL Playground on GET.
-    """
+    """Given a Flask app, attaches a route that serves a GraphQL Playground on GET."""
 
     @app.route("/graphql", methods=["GET"])
     def graphql_playground():
@@ -68,16 +64,16 @@ def attach_graphql_server_route(
     limiter_func: Callable = None,
     **kwargs,
 ):
-    """
-    Given a Flask app and an executable Ariadne GraphQL schema, attaches a route that
-    does the following upon a POST request:
+    """Attach a POST route to a Flask app for serving GraphQL queries.
+
+    Does the following upon a POST request:
         1. Authenticates requests
         2. Dispatches requests to GraphQL resolvers and mutations
         3. Returns a JSON response
     """
 
     def graphql_server():
-        """Serve GraphQL queries"""
+        """Serve GraphQL queries."""
         response = {}
 
         is_bad_request = validate_request(request)
@@ -121,9 +117,7 @@ def attach_graphql_server_route(
 # automatically load the modules present in those directories.
 ########################################################################################
 def load_module_from_filename(filename: str):
-    """
-    Attempts to load the Python module defined by the specified filename
-    """
+    """Attempt to load the Python module defined by the specified filename."""
     # "/directory/module.py" -> "module"
     module_name = str(filename).split("/")[-1].rstrip(".py")
     spec = importlib.util.spec_from_file_location(module_name, filename)
@@ -132,18 +126,17 @@ def load_module_from_filename(filename: str):
 
 
 def load_modules_in_directory(directory):
-    """
-    Given a directory, will load all of the Python files present in that directory.
-    """
+    """Given a directory, load all of the Python files present in that directory."""
     python_files = Path(directory).glob("*.py")
     for filename in python_files:
         load_module_from_filename(filename)
 
 
 def load_resolvers_and_mutations(graphql_config_location: str):
-    """
-    Retrieves the configured resolver and mutation locations and loads the modules in
-    those directories so they can be correctly initialized in Ariadne.
+    """Retrieve configured resolver and mutation locations and load their modules.
+
+    Loads the modules in those directories so they can be correctly initialized
+    in Ariadne.
     """
     provider = YAMLConfigProvider(graphql_config_location)
     resolver_locations = provider.provide(["resolver_locations"], secret=False)
@@ -155,7 +148,7 @@ def load_resolvers_and_mutations(graphql_config_location: str):
 
 
 class JSONEncoder(_JSONEncoder):
-    """Custom JSONEncoder for jsonify"""
+    """Custom JSONEncoder for jsonify."""
 
     def __init__(self, *args, **kwargs):
         # Set default to str for unsupported types
