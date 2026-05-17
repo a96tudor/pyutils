@@ -17,20 +17,23 @@ class RESTClient(abc.ABC):
         config_provider: ConfigProvider,
         config_key: List[str],
         api_name: str,
-        authenticator_type: Authenticator,
         *,
+        authenticator_type: Optional[Authenticator] = None,
         user_agent: Optional[str] = None,
         logger: Optional[Logger] = None,
     ):
         self.api_name = api_name
         self.config_provider = config_provider
         self.config_key = config_key
-        self._authenticator = authenticator_type.from_config_provider(
-            api_name=api_name,
-            config_provider=config_provider,
-            config_key=config_key,
-            logger=logger,
-        )
+        if authenticator_type:
+            self._authenticator = authenticator_type.from_config_provider(
+                api_name=api_name,
+                config_provider=config_provider,
+                config_key=config_key,
+                logger=logger,
+            )
+        else:
+            self._authenticator = None
         self.user_agent = user_agent
         self._base_url = None
         self._logger = logger
@@ -50,7 +53,9 @@ class RESTClient(abc.ABC):
 
     def _get_headers(self, data: Optional[dict] = None) -> dict:
         headers = {}
-        headers.update(self._authenticator.auth_header)
+
+        if self._authenticator:
+            headers.update(self._authenticator.auth_header)
 
         if self.user_agent:
             headers["User-Agent"] = self.user_agent
