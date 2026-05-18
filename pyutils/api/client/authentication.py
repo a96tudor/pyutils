@@ -49,8 +49,8 @@ class Authenticator(abc.ABC):
     ) -> "Authenticator":
         pass
 
-    @abc.abstractmethod
     @property
+    @abc.abstractmethod
     def auth_header(self) -> dict:
         pass
 
